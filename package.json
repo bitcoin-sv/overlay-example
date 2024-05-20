@@ -1,0 +1,28 @@
+{
+  "name": "overlay-example",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "scripts": {
+    "start": "node --loader ts-node/esm src/index.ts",
+    "lint": "ts-standard --fix ."
+  },
+  "author": "",
+  "license": "Open BSV License",
+  "dependencies": {
+    "@bsv/overlay": "file:../verlay-services",
+    "@bsv/sdk": "file:../ts-sdk",
+    "body-parser": "^1.20.2",
+    "express": "^4.19.2",
+    "knex": "^3.1.0",
+    "mysql": "^2.18.1"
+  },
+  "devDependencies": {
+    "@types/body-parser": "^1.19.5",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.12.12",
+    "ts-node": "^10.9.2",
+    "ts-standard": "^12.0.2",
+    "typescript": "^5.4.5"
+  }
+}
