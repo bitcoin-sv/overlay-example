@@ -1,7 +1,7 @@
 import express from 'express'
 import bodyparser from 'body-parser'
 import { Engine, KnexStorage } from '@bsv/overlay'
-import { WoChain } from '@bsv/sdk'
+import { defaultChainTracker } from '@bsv/sdk'
 // Populate a Knexfile with your database credentials
 import Knex from 'knex'
 import knexfile from '../knexfile.js'
@@ -21,7 +21,7 @@ const engine = new Engine.default(
         // })
     },
     new KnexStorage.default(knex),
-    new WoChain('main')
+    defaultChainTracker()
 )
 
 // This allows the API to be used everywhere when CORS is enforced
