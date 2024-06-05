@@ -13,10 +13,6 @@ export class HelloWorldTopicManager implements TopicManager {
       const outputsToAdmit: number[] = []
       const parsedTransaction = Transaction.fromBEEF(beef)
 
-      // Validate params
-      // if (!Array.isArray(parsedTransaction.inputs) || parsedTransaction.inputs.length < 1) throw new ERR_MISSING_PARAMETER('inputs', 'valid array')
-      // if (!Array.isArray(parsedTransaction.outputs) || parsedTransaction.outputs.length < 1) throw new ERR_MISSING_PARAMETER('outputs', 'valid array')
-
       // Try to decode and validate transaction outputs
       for (const [i, output] of parsedTransaction.outputs.entries()) {
         // Decode the HelloWorld fields
