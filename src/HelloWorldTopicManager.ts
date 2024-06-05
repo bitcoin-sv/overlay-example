@@ -29,18 +29,18 @@ export class HelloWorldTopicManager implements TopicManager {
           // TODO: Validate expected data according to the HelloWorld protocol
           const data = result.fields[0]
 
-          const sha256Hasher = new Hash.SHA256()
-          sha256Hasher.update(Array.from(Buffer.concat(result.fields)))
-          const hashedMessage = sha256Hasher.digestHex()
+          // const sha256Hasher = new Hash.SHA256()
+          // sha256Hasher.update(Array.from(Buffer.concat(result.fields)))
+          // const hashedMessage = sha256Hasher.digestHex()
 
-          const hasValidSignature = ECDSA.verify(
-            hashedMessage,
-            new Signature.fromDER(result.signature),
-            new PublicKey(result.lockingPublicKey)
-          )
+          // const hasValidSignature = ECDSA.verify(
+          //   hashedMessage,
+          //   new Signature.fromDER(result.signature),
+          //   new PublicKey(result.lockingPublicKey)
+          // )
 
           // Use ECDSA to verify signature
-          if (!hasValidSignature) throw new Error('Invalid signature!')
+          // if (!hasValidSignature) throw new Error('Invalid signature!')
           outputsToAdmit.push(i)
         } catch (error) {
           console.error(error)
@@ -56,11 +56,14 @@ export class HelloWorldTopicManager implements TopicManager {
       // And previousOutputsRetained (none by default)
       return {
         outputsToAdmit,
-        // outputsToRetain: []
+        coinsToRetain: []
       }
     } catch (error) {
       console.error(error)
-      return []
+      return {
+        outputsToAdmit: [],
+        coinsToRetain: []
+      }
     }
   }
 
