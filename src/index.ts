@@ -32,7 +32,7 @@ const initialization = async () => {
         new HelloWorldStorage(signiaMongoClient.db('staging_helloworld_lookupService'))
       )
     },
-    new KnexStorage.default(knex),
+    new KnexStorage(knex),
     defaultChainTracker()
   )
 }
