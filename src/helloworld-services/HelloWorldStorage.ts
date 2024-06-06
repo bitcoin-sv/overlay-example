@@ -1,15 +1,5 @@
 import { Collection, Db } from 'mongodb'
-
-interface HelloWorldRecord {
-  txid: string
-  outputIndex: number
-  message: string
-  createdAt: Date
-}
-interface UTXOReference {
-  txid: string
-  outputIndex: number
-}
+import { HelloWorldRecord, UTXOReference } from './types.js'
 
 // Implements a Lookup StorageEngine for HelloWorld
 export class HelloWorldStorage {

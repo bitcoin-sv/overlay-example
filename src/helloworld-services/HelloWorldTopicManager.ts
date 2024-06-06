@@ -1,5 +1,5 @@
 import { AdmittanceInstructions, TopicManager } from '@bsv/overlay'
-import { PublicKey, Signature, Transaction, } from '@bsv/sdk'
+import { PublicKey, Signature, Transaction } from '@bsv/sdk'
 import pushdrop from 'pushdrop'
 
 export class HelloWorldTopicManager implements TopicManager {

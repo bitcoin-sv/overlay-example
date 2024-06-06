@@ -6,9 +6,9 @@ import { defaultChainTracker } from '@bsv/sdk'
 import { MongoClient } from 'mongodb'
 import Knex from 'knex'
 import knexfile from '../knexfile.js'
-import { HelloWorldTopicManager } from './HelloWorldTopicManager.js'
-import { HelloWorldLookupService } from './HelloWorldLookupService.js'
-import { HelloWorldStorage } from './HelloWorldStorage.js'
+import { HelloWorldTopicManager } from './helloworld-services/HelloWorldTopicManager.js'
+import { HelloWorldLookupService } from './helloworld-services/HelloWorldLookupService.js'
+import { HelloWorldStorage } from './helloworld-services/HelloWorldStorage.js'
 
 const knex = Knex(knexfile.development)
 const app = express()

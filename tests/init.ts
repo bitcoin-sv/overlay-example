@@ -1,7 +1,7 @@
 import { Engine, KnexStorage } from "@bsv/overlay";
-import { HelloWorldTopicManager } from '../src/HelloWorldTopicManager.js';
-import { HelloWorldLookupService } from '../src/HelloWorldLookupService.js';
-import { HelloWorldStorage } from '../src/HelloWorldStorage.js';
+import { HelloWorldTopicManager } from '../src/helloworld-services/HelloWorldTopicManager.js';
+import { HelloWorldLookupService } from '../src/helloworld-services/HelloWorldLookupService.js';
+import { HelloWorldStorage } from '../src/helloworld-services/HelloWorldStorage.js';
 import { MongoClient } from "mongodb";
 import { defaultChainTracker } from "@bsv/sdk";
 import Knex from 'knex';
