@@ -14,27 +14,45 @@ const app = express()
 app.use(bodyparser.json({ limit: '1gb', type: 'application/json' }))
 
 let engine: Engine
+// Initialization function
 const initialization = async () => {
-  const signiaMongoClient = new MongoClient(process.env.DB_CONNECTION as string)
-  await signiaMongoClient.connect()
+  console.log('Starting initialization...')
+  const mongoClient = new MongoClient('mongodb://localhost:27017')
 
-  // Create a new overlay Engine configured with:
-  // - a topic manger
-  // - a lookup service, configured with MongoDB storage client
-  // - the default Knex storage provider for the Engine
-  // - the default chaintracker for merkle proof validation
-  engine = new Engine(
-    {
-      hello: new HelloWorldTopicManager()
-    },
-    {
-      hello: new HelloWorldLookupService(
-        new HelloWorldStorage(signiaMongoClient.db('staging_helloworld_lookupService'))
+  try {
+    await mongoClient.connect()
+    console.log('Connected to MongoDB')
+
+    // Create a new overlay Engine configured with:
+    // - a topic manger
+    // - a lookup service, configured with MongoDB storage client
+    // - the default Knex storage provider for the Engine
+    // - the default chaintracker for merkle proof validation
+    console.log('Initializing Engine...')
+    try {
+      engine = new Engine(
+        {
+          hello: new HelloWorldTopicManager()
+        },
+        {
+          hello: new HelloWorldLookupService(
+            new HelloWorldStorage(mongoClient.db('staging_helloworld_lookupService'))
+          )
+        },
+        new KnexStorage(knex),
+        defaultChainTracker()
       )
-    },
-    new KnexStorage(knex),
-    defaultChainTracker()
-  )
+    } catch (engineError) {
+      console.error('Error during Engine initialization:', engineError)
+      throw engineError
+    }
+    console.log('Engine initialized successfully')
+  } catch (error) {
+    console.error('Initialization failed:', error)
+    throw error
+  } finally {
+    await mongoClient.close()
+  }
 }
 
 // This allows the API to be used everywhere when CORS is enforced
@@ -51,7 +69,7 @@ app.use((req, res, next) => {
   }
 })
 
-// Serve a static documentstion site, if you have one.
+// Serve a static documentation site, if you have one.
 app.use(express.static('public'))
 
 // List hosted topic managers and lookup services
@@ -205,11 +223,13 @@ app.use((req, res) => {
 })
 
 // Start your Engines!
-initialization().then((db) => {
-  app.listen(8080, () => {
-    console.log('BSV Overlay Services Engine is listening on port', 8080)
+initialization()
+  .then(() => {
+    app.listen(8080, () => {
+      console.log(`BSV Overlay Services Engine is listening on port ${8080}`)
+    })
   })
-}).catch((error) => {
-  console.error('Failed to initialize:', error)
-  process.exit(1)
-})
+  .catch((error) => {
+    console.error('Failed to initialize:', error)
+    process.exit(1)
+  })

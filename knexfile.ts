@@ -6,13 +6,13 @@ const knexfile: { [key: string]: Knex.Config } = {
     connection: {
       host: '127.0.0.1',
       port: 3306,
-      user: 'root',
-      password: 'root',
+      user: 'overlayAdmin',
+      password: 'my-secret-pw',
       database: 'overlay'
     },
     useNullAsDefault: true,
     migrations: {
-      directory: './migrations'
+      directory: './src/migrations'
     }
   }
 }

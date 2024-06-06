@@ -71,7 +71,7 @@ export class HelloWorldTopicManager implements TopicManager {
   /**
    * Get information about stuff
    */
-  async getMetaData(): Promise<{ name: string; shortDescription: string; iconURL?: string | undefined; version?: string | undefined; informationURL?: string | undefined; }> {
+  async getMetaData(): Promise<{ name: string, shortDescription: string, iconURL?: string | undefined, version?: string | undefined, informationURL?: string | undefined }> {
     throw new Error('Method not implemented.')
   }
 }
