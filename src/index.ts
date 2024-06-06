@@ -8,20 +8,28 @@ import knexfile from '../knexfile.js'
 import { HelloWorldTopicManager } from './HelloWorldTopicManager.js'
 import { HelloWorldLookupService } from './HelloWorldLookupService.js'
 import { HelloWorldStorage } from './HelloWorldStorage.js'
+import { MongoClient } from 'mongodb'
 const knex = Knex(knexfile.development)
 const app = express()
 app.use(bodyparser.json({ limit: '1gb', type: 'application/json' }))
 
-const engine = new Engine.default(
-  {
-    hello: new HelloWorldTopicManager()
-  },
-  {
-    hello: new HelloWorldLookupService(new HelloWorldStorage())
-  },
-  new KnexStorage.default(knex),
-  defaultChainTracker()
-)
+let engine: Engine.default
+const initialization = async () => {
+  const signiaMongoClient = new MongoClient(process.env.DB_CONNECTION as string)
+  await signiaMongoClient.connect()
+  engine = new Engine.default(
+    {
+      hello: new HelloWorldTopicManager()
+    },
+    {
+      hello: new HelloWorldLookupService(
+        new HelloWorldStorage(signiaMongoClient.db('staging_helloworld_lookupService'))
+      )
+    },
+    new KnexStorage.default(knex),
+    defaultChainTracker()
+  )
+}
 
 // This allows the API to be used everywhere when CORS is enforced
 app.use((req, res, next) => {
@@ -191,6 +199,11 @@ app.use((req, res) => {
 })
 
 // Start your Engines!
-app.listen(8080, () => {
-  console.log('BSV Overlay Services Engine is listening on port', 8080)
+initialization().then((db) => {
+  app.listen(8080, () => {
+    console.log('BSV Overlay Services Engine is listening on port', 8080)
+  })
+}).catch((error) => {
+  console.error('Failed to initialize:', error)
+  process.exit(1)
 })

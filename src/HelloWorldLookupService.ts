@@ -1,4 +1,5 @@
 import { LookupService, LookupQuestion, LookupAnswer, LookupFormula } from '@bsv/overlay'
+import { HelloWorldStorage } from './HelloWorldStorage.js'
 
 /**
  * Implements an example hello world lookup service
@@ -9,7 +10,7 @@ export class HelloWorldLookupService implements LookupService {
    * Constructs a new Hello World Lookup Service instance
    * @param storage
    */
-  constructor(public storage: Storage) { }
+  constructor(public storage: HelloWorldStorage) { }
 
   /**
    * Notifies a lookup service that an output was spent
@@ -19,7 +20,7 @@ export class HelloWorldLookupService implements LookupService {
    */
   async outputSpent?(txid: string, outputIndex: number, topic: string): Promise<void> {
     if (topic !== 'HelloWorld') return
-    await this.storage.removeItem(`${txid}${outputIndex}`)
+    await this.storage.deleteRecord(txid, outputIndex)
   }
 
   /**
@@ -29,7 +30,8 @@ export class HelloWorldLookupService implements LookupService {
    * @param topic 
    */
   async outputDeleted?(txid: string, outputIndex: number, topic: string): Promise<void> {
-    console.log('An output was added to the lookup service!')
+    if (topic !== 'HelloWorld') return
+    await this.storage.deleteRecord(txid, outputIndex)
   }
 
   /**
@@ -38,9 +40,7 @@ export class HelloWorldLookupService implements LookupService {
    */
   async lookup(question: LookupQuestion): Promise<LookupAnswer | LookupFormula> {
     console.log(`Running lookup for ${question.query as string} for the service ${question.service as string}`)
-
     // TODO: Run actual query against storage
-
     return {
       type: 'output-list',
       outputs: [{

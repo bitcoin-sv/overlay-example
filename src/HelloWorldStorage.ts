@@ -7,11 +7,16 @@ interface HelloWorldRecord {
   message: string
   createdAt: Date
 }
+interface UTXOReference {
+  txid: string
+  outputIndex: number
+}
 interface Query {
   $and: Array<{ [key: string]: any }>
 }
+
 // Implements a Lookup StorageEngine for HelloWorld
-export class HelloWorldStorageEngine {
+export class HelloWorldStorage {
   private readonly records: Collection<HelloWorldRecord>
 
   /**
@@ -55,4 +60,25 @@ export class HelloWorldStorageEngine {
   }
 
   // TODO: Custom search functions can be added here.
+
+  /**
+ * Finds matching records by identity key, and optional certifiers
+ * @param {string} message
+ * @returns {Promise<UTXOReference[]>} returns matching UTXO references
+ */
+  async findByMessage(message: string): Promise<UTXOReference[]> {
+    // Validate search query param
+    if (message === '' || message === undefined) {
+      return []
+    }
+
+    // Return matching records based on the query
+    return this.records.find({ message })
+      .project<UTXOReference>({ txid: 1, outputIndex: 1 })
+      .toArray()
+      .then(results => results.map(record => ({
+        txid: record.txid,
+        outputIndex: record.outputIndex
+      })))
+  }
 }
