@@ -17,6 +17,12 @@ let engine: Engine
 const initialization = async () => {
   const signiaMongoClient = new MongoClient(process.env.DB_CONNECTION as string)
   await signiaMongoClient.connect()
+
+  // Create a new overlay Engine configured with:
+  // - a topic manger
+  // - a lookup service, configured with MongoDB storage client
+  // - the default Knex storage provider for the Engine
+  // - the default chaintracker for merkle proof validation
   engine = new Engine(
     {
       hello: new HelloWorldTopicManager()
