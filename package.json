@@ -4,6 +4,7 @@
   "type": "module",
   "description": "",
   "scripts": {
+    "build": "tsc -b",
     "start": "node --loader ts-node/esm src/index.ts",
     "lint": "ts-standard --fix ."
   },

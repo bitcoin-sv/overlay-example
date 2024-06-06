@@ -13,11 +13,11 @@ const knex = Knex(knexfile.development)
 const app = express()
 app.use(bodyparser.json({ limit: '1gb', type: 'application/json' }))
 
-let engine: Engine.default
+let engine: Engine
 const initialization = async () => {
   const signiaMongoClient = new MongoClient(process.env.DB_CONNECTION as string)
   await signiaMongoClient.connect()
-  engine = new Engine.default(
+  engine = new Engine(
     {
       hello: new HelloWorldTopicManager()
     },
