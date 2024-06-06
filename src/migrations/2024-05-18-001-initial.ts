@@ -7,7 +7,6 @@ export async function up(knex: Knex): Promise<void> {
     t.string('txid')
     t.integer('outputIndex')
     t.binary('script')
-    t.string('message')
   })
 }
 

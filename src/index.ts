@@ -1,30 +1,39 @@
+import dotenv from 'dotenv'
 import express from 'express'
 import bodyparser from 'body-parser'
 import { Engine, KnexStorage } from '@bsv/overlay'
 import { defaultChainTracker } from '@bsv/sdk'
-// Populate a Knexfile with your database credentials
+import { MongoClient } from 'mongodb'
 import Knex from 'knex'
 import knexfile from '../knexfile.js'
 import { HelloWorldTopicManager } from './HelloWorldTopicManager.js'
 import { HelloWorldLookupService } from './HelloWorldLookupService.js'
 import { HelloWorldStorage } from './HelloWorldStorage.js'
-import { MongoClient } from 'mongodb'
+
 const knex = Knex(knexfile.development)
 const app = express()
+dotenv.config()
 app.use(bodyparser.json({ limit: '1gb', type: 'application/json' }))
 
+// Load environment variables
+const {
+  PORT,
+  DB_CONNECTION,
+  DB_NAME
+} = process.env
+
+// Initialization the overlay engine
 let engine: Engine
-// Initialization function
 const initialization = async () => {
   console.log('Starting initialization...')
-  const mongoClient = new MongoClient('mongodb://localhost:27017')
+  const mongoClient = new MongoClient(DB_CONNECTION as string)
 
   try {
     await mongoClient.connect()
     console.log('Connected to MongoDB')
 
     // Create a new overlay Engine configured with:
-    // - a topic manger
+    // - a topic manager
     // - a lookup service, configured with MongoDB storage client
     // - the default Knex storage provider for the Engine
     // - the default chaintracker for merkle proof validation
@@ -36,17 +45,17 @@ const initialization = async () => {
         },
         {
           hello: new HelloWorldLookupService(
-            new HelloWorldStorage(mongoClient.db('staging_helloworld_lookupService'))
+            new HelloWorldStorage(mongoClient.db(DB_NAME as string))
           )
         },
         new KnexStorage(knex),
         defaultChainTracker()
       )
+      console.log('Engine initialized successfully')
     } catch (engineError) {
       console.error('Error during Engine initialization:', engineError)
       throw engineError
     }
-    console.log('Engine initialized successfully')
   } catch (error) {
     console.error('Initialization failed:', error)
     throw error
@@ -225,8 +234,9 @@ app.use((req, res) => {
 // Start your Engines!
 initialization()
   .then(() => {
-    app.listen(8080, () => {
-      console.log(`BSV Overlay Services Engine is listening on port ${8080}`)
+    console.log(PORT)
+    app.listen(PORT, () => {
+      console.log(`BSV Overlay Services Engine is listening on port ${PORT as string}`)
     })
   })
   .catch((error) => {

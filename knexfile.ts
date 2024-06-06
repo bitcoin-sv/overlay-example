@@ -2,12 +2,12 @@ import type { Knex } from 'knex'
 
 const knexfile: { [key: string]: Knex.Config } = {
   development: {
-    client: 'mysql',
+    client: 'mysql2',
     connection: {
       host: '127.0.0.1',
       port: 3306,
       user: 'overlayAdmin',
-      password: 'my-secret-pw',
+      password: 'overlay123',
       database: 'overlay'
     },
     useNullAsDefault: true,
