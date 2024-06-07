@@ -3,7 +3,7 @@ import { createHelloWorldMessage } from './createHelloWorldMessage'
 /**
  * Requirements to run these example tests:
  * 1. Make sure your local .env file is configured correctly:
- * 
+ *
  *    PORT=8080
  *    NODE_ENV='development'
  *    HOSTING_DOMAIN="http://localhost:8080"
@@ -11,11 +11,11 @@ import { createHelloWorldMessage } from './createHelloWorldMessage'
  *    MIGRATE_KEY="my-grate-key"
  *    DB_CONNECTION='mongodb connection string here'
  *    DB_NAME='staging_helloworld_lookupService'
- * 
+ *
  * 2. Start your MySQL instance and run the DB migrations.
  * 3. Create your MongoDB db instance and make sure your connection string works.
  * 4. Start the local express server.
- * 
+ *
  * You should now be ready to run the following integration tests.
  */
 describe('createHelloWorldMessage', () => {
