@@ -25,7 +25,7 @@ jest.mock('pushdrop', () => ({
   decode: jest.fn().mockImplementation(() => ({
     fields: [Buffer.from('Hello')],
     lockingPublicKey: 'mockedPublicKey',
-    signature: 'mockedSignature',
+    signature: 'mockedSignature'
   }))
 }))
 
@@ -69,8 +69,9 @@ describe('HelloWorldTopicManager', () => {
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation()
 
       const mockVerify = jest.fn().mockReturnValue(false)
+        // eslint-disable-next-line no-unexpected-multiline
         (PublicKey as unknown as jest.Mock).mockImplementation(() => ({
-          verify: mockVerify,
+          verify: mockVerify
         }))
 
       const beef = [1, 2, 3]

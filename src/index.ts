@@ -2,8 +2,9 @@ import dotenv from 'dotenv'
 import express from 'express'
 import bodyparser from 'body-parser'
 import { Engine, KnexStorage } from '@bsv/overlay'
-import { defaultChainTracker } from '@bsv/sdk'
+import { WhatsOnChain, NodejsHttpClient } from '@bsv/sdk'
 import { MongoClient } from 'mongodb'
+import https from 'https'
 import Knex from 'knex'
 import knexfile from '../knexfile.js'
 import { HelloWorldTopicManager } from './helloworld-services/HelloWorldTopicManager.js'
@@ -14,23 +15,23 @@ const knex = Knex(knexfile.development)
 const app = express()
 dotenv.config()
 app.use(bodyparser.json({ limit: '1gb', type: 'application/json' }))
+app.use(bodyparser.raw({ limit: '1gb', type: 'application/octet-stream' }))
 
 // Load environment variables
 const {
   PORT,
   DB_CONNECTION,
-  DB_NAME
+  DB_NAME,
+  NODE_ENV
 } = process.env
 
 // Initialization the overlay engine
 let engine: Engine
 const initialization = async () => {
   console.log('Starting initialization...')
-  const mongoClient = new MongoClient(DB_CONNECTION as string)
-
   try {
+    const mongoClient = new MongoClient(DB_CONNECTION as string)
     await mongoClient.connect()
-    console.log('Connected to MongoDB')
 
     // Create a new overlay Engine configured with:
     // - a topic manager
@@ -41,15 +42,19 @@ const initialization = async () => {
     try {
       engine = new Engine(
         {
-          hello: new HelloWorldTopicManager()
+          HelloWorld: new HelloWorldTopicManager()
         },
         {
-          hello: new HelloWorldLookupService(
+          HelloWorld: new HelloWorldLookupService(
             new HelloWorldStorage(mongoClient.db(DB_NAME as string))
           )
         },
         new KnexStorage(knex),
-        defaultChainTracker()
+        new WhatsOnChain(
+          NODE_ENV === 'production' ? 'main' : 'test',
+          {
+            httpClient: new NodejsHttpClient(https)
+          })
       )
       console.log('Engine initialized successfully')
     } catch (engineError) {
@@ -59,8 +64,6 @@ const initialization = async () => {
   } catch (error) {
     console.error('Initialization failed:', error)
     throw error
-  } finally {
-    await mongoClient.close()
   }
 }
 
@@ -90,7 +93,6 @@ app.get('/listTopicManagers', (req, res) => {
     } catch (error) {
       return res.status(400).json({
         status: 'error'
-        // code: error.code,
         // description: error.message
       })
     }
@@ -99,8 +101,6 @@ app.get('/listTopicManagers', (req, res) => {
     res.status(500).json({
       status: 'error',
       message: 'Unexpected error'
-      // code: error.code,
-      // description: error.message
     })
   })
 })
@@ -121,8 +121,6 @@ app.get('/listLookupServiceProviders', (req, res) => {
     res.status(500).json({
       status: 'error',
       message: 'Unexpected error'
-      // code: error.code,
-      // description: error.message
     })
   })
 })
@@ -141,12 +139,9 @@ app.get('/getDocumentationForTopicManager', (req, res) => {
       })
     }
   })().catch(() => {
-    // This catch is for any unforeseen errors in the async IIFE itself
     res.status(500).json({
       status: 'error',
       message: 'Unexpected error'
-      // code: error.code,
-      // description: error.message
     })
   })
 })
@@ -164,12 +159,9 @@ app.get('/getDocumentationForLookupServiceProvider', (req, res) => {
       })
     }
   })().catch(() => {
-    // This catch is for any unforeseen errors in the async IIFE itself
     res.status(500).json({
       status: 'error',
       message: 'Unexpected error'
-      // code: error.code,
-      // description: error.message
     })
   })
 })
@@ -178,7 +170,14 @@ app.get('/getDocumentationForLookupServiceProvider', (req, res) => {
 app.post('/submit', (req, res) => {
   (async () => {
     try {
-      const result = await engine.submit(req.body)
+      // Parse out the topics and construct the tagged BEEF
+      const topics = JSON.parse(req.headers['x-topics'] as string)
+      const taggedBEEF = {
+        beef: Array.from(req.body as number[]),
+        topics
+      }
+
+      const result = await engine.submit(taggedBEEF)
       return res.status(200).json(result)
     } catch (error) {
       return res.status(400).json({
@@ -188,12 +187,9 @@ app.post('/submit', (req, res) => {
       })
     }
   })().catch(() => {
-    // This catch is for any unforeseen errors in the async IIFE itself
     res.status(500).json({
       status: 'error',
       message: 'Unexpected error'
-      // code: error.code,
-      // description: error.message
     })
   })
 })
@@ -204,6 +200,7 @@ app.post('/lookup', (req, res) => {
       const result = await engine.lookup(req.body)
       return res.status(200).json(result)
     } catch (error) {
+      console.error(error)
       return res.status(400).json({
         status: 'error'
         // code: error.code,
@@ -211,12 +208,9 @@ app.post('/lookup', (req, res) => {
       })
     }
   })().catch(() => {
-    // This catch is for any unforeseen errors in the async IIFE itself
     res.status(500).json({
       status: 'error',
       message: 'Unexpected error'
-      // code: error.code,
-      // description: error.message
     })
   })
 })

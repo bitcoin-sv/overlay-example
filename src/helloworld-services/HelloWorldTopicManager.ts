@@ -2,6 +2,9 @@ import { AdmittanceInstructions, TopicManager } from '@bsv/overlay'
 import { PublicKey, Signature, Transaction } from '@bsv/sdk'
 import pushdrop from 'pushdrop'
 
+/**
+ *  Note: The PushDrop package is used to decode BRC-48 style Pay-to-Push-Drop tokens.
+ */
 export class HelloWorldTopicManager implements TopicManager {
   /**
    * Identify if the outputs are admissible depending on the particular protocol requirements
@@ -31,10 +34,10 @@ export class HelloWorldTopicManager implements TopicManager {
           if (helloWorldMessage.length < 2) continue
 
           // Verify the signature
-          const pubKey = new PublicKey(result.lockingPublicKey)
+          const pubKey = PublicKey.fromString(result.lockingPublicKey)
           const hasValidSignature = pubKey.verify(
             Array.from(Buffer.concat(result.fields)),
-            Signature.fromDER(result.signature)
+            Signature.fromDER(result.signature, 'hex')
           )
 
           if (!hasValidSignature) throw new Error('Invalid signature!')

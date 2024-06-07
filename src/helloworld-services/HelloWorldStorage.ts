@@ -18,7 +18,7 @@ export class HelloWorldStorage {
    * Stores record of certification
    * @param {string} txid transaction id
    * @param {number} outputIndex index of the UTXO
-   * @param {Certificate} certificate certificate record to store
+   * @param {string} message - hello world message to save
    */
   async storeRecord(txid: string, outputIndex: number, message: string): Promise<void> {
     // Insert new record

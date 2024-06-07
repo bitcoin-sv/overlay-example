@@ -40,7 +40,7 @@ describe('HelloWorldStorage', () => {
         txid,
         outputIndex,
         message,
-        createdAt: expect.any(Date),
+        createdAt: expect.any(Date)
       })
     })
   })

@@ -1,8 +1,13 @@
 import { LookupService, LookupQuestion, LookupAnswer, LookupFormula } from '@bsv/overlay'
 import { HelloWorldStorage } from './HelloWorldStorage.js'
+import { Script } from '@bsv/sdk'
+import pushdrop from 'pushdrop'
 
 /**
  * Implements an example HelloWorld lookup service
+ *
+ * Note: The PushDrop package is used to decode BRC-48 style Pay-to-Push-Drop tokens.
+ *
  * @public
  */
 export class HelloWorldLookupService implements LookupService {
@@ -11,6 +16,36 @@ export class HelloWorldLookupService implements LookupService {
    * @param storage - The storage instance to use for managing records
    */
   constructor(public storage: HelloWorldStorage) { }
+
+  /**
+   * Notifies the lookup service of a new output added.
+   *
+   * @param {string} txid - The transaction ID containing the output.
+   * @param {number} outputIndex - The index of the output in the transaction.
+   * @param {Script} outputScript - The script of the output to be processed.
+   * @param {string} topic - The topic associated with the output.
+   *
+   * @returns {Promise<void>} A promise that resolves when the processing is complete.
+   * @throws Will throw an error if there is an issue with storing the record in the storage engine.
+   */
+  async outputAdded?(txid: string, outputIndex: number, outputScript: Script, topic: string): Promise<void> {
+    if (topic !== 'HelloWorld') return
+    // Decode the HelloWorld token fields from the Bitcoin outputScript
+    const result = pushdrop.decode({
+      script: outputScript.toHex(),
+      fieldFormat: 'buffer'
+    })
+
+    // Parse out the message field
+    const helloMessage = result.fields[0].toString('utf8')
+
+    // Store the token fields for future lookup
+    await this.storage.storeRecord(
+      txid,
+      outputIndex,
+      helloMessage
+    )
+  }
 
   /**
    * Notifies the lookup service that an output was spent
@@ -43,8 +78,6 @@ export class HelloWorldLookupService implements LookupService {
     if (question.query === undefined || question.query === null) {
       throw new Error('A valid query must be provided!')
     }
-
-    // Consider query format of: question.query.message
 
     // Simple example which does a query by the message
     return await this.storage.findByMessage(question.query as string)
