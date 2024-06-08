@@ -2,7 +2,7 @@ import dotenv from 'dotenv'
 import express from 'express'
 import bodyparser from 'body-parser'
 import { Engine, KnexStorage } from '@bsv/overlay'
-import { WhatsOnChain, NodejsHttpClient } from '@bsv/sdk'
+import { WhatsOnChain, NodejsHttpClient, ARC, ArcConfig, MerklePath } from '@bsv/sdk'
 import { MongoClient } from 'mongodb'
 import https from 'https'
 import Knex from 'knex'
@@ -22,7 +22,9 @@ const {
   PORT,
   DB_CONNECTION,
   DB_NAME,
-  NODE_ENV
+  NODE_ENV,
+  HOSTING_DOMAIN,
+  TAAL_API_KEY
 } = process.env
 
 // Initialization the overlay engine
@@ -40,6 +42,15 @@ const initialization = async () => {
     // - the default chaintracker for merkle proof validation
     console.log('Initializing Engine...')
     try {
+      // Configuration for ARC
+      const arcConfig: ArcConfig = {
+        deploymentId: '1',
+        apiKey: TAAL_API_KEY,
+        callbackUrl: 'https://aa47-74-51-29-58.ngrok-free.app/arc-ingest', // TODO: Replace with ${HOSTING_DOMAIN}/arc-ingest
+        callbackToken: 'fredFlinstones',
+        httpClient: new NodejsHttpClient(https)
+      }
+
       engine = new Engine(
         {
           HelloWorld: new HelloWorldTopicManager()
@@ -54,7 +65,8 @@ const initialization = async () => {
           NODE_ENV === 'production' ? 'main' : 'test',
           {
             httpClient: new NodejsHttpClient(https)
-          })
+          }),
+        new ARC('https://arc.taal.com', arcConfig)
       )
       console.log('Engine initialized successfully')
     } catch (engineError) {
@@ -180,6 +192,7 @@ app.post('/submit', (req, res) => {
       const result = await engine.submit(taggedBEEF)
       return res.status(200).json(result)
     } catch (error) {
+      console.error(error)
       return res.status(400).json({
         status: 'error'
         // code: error.code,
@@ -199,6 +212,30 @@ app.post('/lookup', (req, res) => {
     try {
       const result = await engine.lookup(req.body)
       return res.status(200).json(result)
+    } catch (error) {
+      console.error(error)
+      return res.status(400).json({
+        status: 'error'
+        // code: error.code,
+        // description: error.message
+      })
+    }
+  })().catch(() => {
+    res.status(500).json({
+      status: 'error',
+      message: 'Unexpected error'
+    })
+  })
+})
+
+app.post('/arc-ingest', (req, res) => {
+  (async () => {
+    try {
+      console.log('txid', req.body.txid)
+      console.log('merklePath', req.body.merklePath)
+      const merklePath = MerklePath.fromHex(req.body.merklePath)
+      await engine.handleNewMerkleProof(req.body.txid, merklePath)
+      return res.status(200)
     } catch (error) {
       console.error(error)
       return res.status(400).json({
