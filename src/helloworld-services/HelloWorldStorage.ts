@@ -1,19 +1,5 @@
-// Implements Storage for HelloWorld lookup service
 import { Collection, Db } from 'mongodb'
-
-interface HelloWorldRecord {
-  txid: string
-  outputIndex: number
-  message: string
-  createdAt: Date
-}
-interface UTXOReference {
-  txid: string
-  outputIndex: number
-}
-interface Query {
-  $and: Array<{ [key: string]: any }>
-}
+import { HelloWorldRecord, UTXOReference } from './types.js'
 
 // Implements a Lookup StorageEngine for HelloWorld
 export class HelloWorldStorage {
@@ -32,7 +18,7 @@ export class HelloWorldStorage {
    * Stores record of certification
    * @param {string} txid transaction id
    * @param {number} outputIndex index of the UTXO
-   * @param {Certificate} certificate certificate record to store
+   * @param {string} message - hello world message to save
    */
   async storeRecord(txid: string, outputIndex: number, message: string): Promise<void> {
     // Insert new record
@@ -59,13 +45,11 @@ export class HelloWorldStorage {
     return new RegExp(escapedInput.split('').join('.*'), 'i')
   }
 
-  // TODO: Custom search functions can be added here.
-
   /**
- * Finds matching records by identity key, and optional certifiers
- * @param {string} message
- * @returns {Promise<UTXOReference[]>} returns matching UTXO references
- */
+   * Finds matching records by identity key, and optional certifiers
+   * @param {string} message
+   * @returns {Promise<UTXOReference[]>} returns matching UTXO references
+   */
   async findByMessage(message: string): Promise<UTXOReference[]> {
     // Validate search query param
     if (message === '' || message === undefined) {
@@ -73,7 +57,7 @@ export class HelloWorldStorage {
     }
 
     // Return matching records based on the query
-    return this.records.find({ message })
+    return await this.records.find({ message })
       .project<UTXOReference>({ txid: 1, outputIndex: 1 })
       .toArray()
       .then(results => results.map(record => ({
@@ -81,4 +65,6 @@ export class HelloWorldStorage {
         outputIndex: record.outputIndex
       })))
   }
+
+  // Additional custom query functions can be added here. ---------------------------------------------
 }
