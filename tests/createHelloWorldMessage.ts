@@ -14,7 +14,7 @@ import { LookupAnswer, LookupFormula } from '@bsv/overlay'
  * @param message - the HelloWorld message to post.
  * @returns - The response from the overlay
  */
-export const createHelloWorldMessage = async (message: string): Promise<LookupAnswer | LookupFormula> => {
+export const createHelloWorldMessage = async (message: string, hostingURL = 'http://localhost:8080'): Promise<LookupAnswer | LookupFormula> => {
   // Create the Bitcoin Output Script
   const bitcoinOutputScript = await pushdrop.create({
     fields: [
@@ -29,7 +29,6 @@ export const createHelloWorldMessage = async (message: string): Promise<LookupAn
     outputs: [{
       satoshis: Number(1000),
       script: bitcoinOutputScript,
-      basket: 'HelloWorld',
       description: 'New HelloWorld message'
     }],
     description: `Create a HelloWorld token`
@@ -43,11 +42,11 @@ export const createHelloWorldMessage = async (message: string): Promise<LookupAn
   }).beef
 
   // Submit the transaction to the HelloWorld overlay service
-  const result = await fetch('http://localhost:8080/submit', {
+  const result = await fetch(`${hostingURL}/submit`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/octet-stream',
-      'X-Topics': JSON.stringify(['HelloWorld'])
+      'X-Topics': JSON.stringify(['tm_helloworld'])
     },
     body: new Uint8Array(beef)
   })

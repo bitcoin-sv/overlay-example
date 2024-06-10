@@ -18,22 +18,25 @@ import { createHelloWorldMessage } from './createHelloWorldMessage'
  *
  * You should now be ready to run the following integration tests.
  */
+
+const HOSTING_URL = 'http://localhost:8080'
+
 describe('createHelloWorldMessage', () => {
   it('should create and submit a HelloWorld message', async () => {
     const message = 'test002'
-    const result = await createHelloWorldMessage(message)
+    const result = await createHelloWorldMessage(message, HOSTING_URL)
     console.log(result)
     // Ensure the server is running and can process the request correctly.
     // expect(result).toHaveProperty('status')
   })
   it('should lookup a HelloWorld message', async () => {
-    const result = await fetch('http://localhost:8080/lookup', {
+    const result = await fetch(`${HOSTING_URL}/lookup`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        service: 'HelloWorld',
+        service: 'ls_helloworld',
         query: 'test002'
       })
     })
