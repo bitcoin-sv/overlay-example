@@ -53,10 +53,10 @@ const initialization = async () => {
 
       engine = new Engine(
         {
-          HelloWorld: new HelloWorldTopicManager()
+          tm_helloworld: new HelloWorldTopicManager()
         },
         {
-          HelloWorld: new HelloWorldLookupService(
+          ls_helloworld: new HelloWorldLookupService(
             new HelloWorldStorage(mongoClient.db(DB_NAME as string))
           )
         },
