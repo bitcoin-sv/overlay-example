@@ -10,6 +10,10 @@ import knexfile from '../knexfile.js'
 import { HelloWorldTopicManager } from './helloworld-services/HelloWorldTopicManager.js'
 import { HelloWorldLookupService } from './helloworld-services/HelloWorldLookupService.js'
 import { HelloWorldStorage } from './helloworld-services/HelloWorldStorage.js'
+import { SHIPLookupService } from './peer-discovery-services/SHIP/SHIPLookupService.js'
+import { SLAPLookupService } from './peer-discovery-services/SLAP/SLAPLookupService.js'
+import { SHIPStorage } from './peer-discovery-services/SHIP/SHIPStorage.js'
+import { SLAPStorage } from './peer-discovery-services/SLAP/SLAPStorage.js'
 
 const knex = Knex(knexfile.development)
 const app = express()
@@ -51,14 +55,19 @@ const initialization = async () => {
         httpClient: new NodejsHttpClient(https)
       }
 
+      // Create storage instances
+      const helloStorage = new HelloWorldStorage(mongoClient.db(DB_NAME as string))
+      const shipStorage = new SHIPStorage(mongoClient.db(DB_NAME as string))
+      const slapStorage = new SLAPStorage(mongoClient.db(DB_NAME as string))
+
       engine = new Engine(
         {
           tm_helloworld: new HelloWorldTopicManager()
         },
         {
-          ls_helloworld: new HelloWorldLookupService(
-            new HelloWorldStorage(mongoClient.db(DB_NAME as string))
-          )
+          ls_helloworld: new HelloWorldLookupService(helloStorage),
+          ls_ship_service_hosts: new SHIPLookupService(shipStorage),
+          ls_slap_service_availability: new SLAPLookupService(slapStorage)
         },
         new KnexStorage(knex),
         new WhatsOnChain(
@@ -104,8 +113,8 @@ app.get('/listTopicManagers', (req, res) => {
       return res.status(200).json(result)
     } catch (error) {
       return res.status(400).json({
-        status: 'error'
-        // description: error.message
+        status: 'error',
+        message: error instanceof Error ? error.message : 'An unknown error occurred'
       })
     }
   })().catch(() => {
@@ -124,9 +133,8 @@ app.get('/listLookupServiceProviders', (req, res) => {
       return res.status(200).json(result)
     } catch (error) {
       return res.status(400).json({
-        status: 'error'
-        // code: error.code,
-        // description: error.message
+        status: 'error',
+        message: error instanceof Error ? error.message : 'An unknown error occurred'
       })
     }
   })().catch(() => {
@@ -145,9 +153,8 @@ app.get('/getDocumentationForTopicManager', (req, res) => {
       return res.status(200).json(result)
     } catch (error) {
       return res.status(400).json({
-        status: 'error'
-        // code: error.code,
-        // description: error.message
+        status: 'error',
+        message: error instanceof Error ? error.message : 'An unknown error occurred'
       })
     }
   })().catch(() => {
@@ -165,9 +172,8 @@ app.get('/getDocumentationForLookupServiceProvider', (req, res) => {
       return res.status(200).json(result)
     } catch (error) {
       return res.status(400).json({
-        status: 'error'
-        // code: error.code,
-        // description: error.message
+        status: 'error',
+        message: error instanceof Error ? error.message : 'An unknown error occurred'
       })
     }
   })().catch(() => {
@@ -194,9 +200,8 @@ app.post('/submit', (req, res) => {
     } catch (error) {
       console.error(error)
       return res.status(400).json({
-        status: 'error'
-        // code: error.code,
-        // description: error.message
+        status: 'error',
+        message: error instanceof Error ? error.message : 'An unknown error occurred'
       })
     }
   })().catch(() => {
@@ -215,9 +220,8 @@ app.post('/lookup', (req, res) => {
     } catch (error) {
       console.error(error)
       return res.status(400).json({
-        status: 'error'
-        // code: error.code,
-        // description: error.message
+        status: 'error',
+        message: error instanceof Error ? error.message : 'An unknown error occurred'
       })
     }
   })().catch(() => {
@@ -239,9 +243,8 @@ app.post('/arc-ingest', (req, res) => {
     } catch (error) {
       console.error(error)
       return res.status(400).json({
-        status: 'error'
-        // code: error.code,
-        // description: error.message
+        status: 'error',
+        message: error instanceof Error ? error.message : 'An unknown error occurred'
       })
     }
   })().catch(() => {

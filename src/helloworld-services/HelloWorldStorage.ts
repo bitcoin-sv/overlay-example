@@ -1,5 +1,5 @@
 import { Collection, Db } from 'mongodb'
-import { HelloWorldRecord, UTXOReference } from './types.js'
+import { HelloWorldRecord, UTXOReference } from 'src/types.js'
 
 // Implements a Lookup StorageEngine for HelloWorld
 export class HelloWorldStorage {
@@ -9,7 +9,7 @@ export class HelloWorldStorage {
    * Constructs a new SigniaStorageEngine instance
    * @param {Db} db - connected mongo database instance
    */
-  constructor(private db: Db) {
+  constructor(private readonly db: Db) {
     this.records = db.collection<HelloWorldRecord>('helloWorldRecords')
     // this.records.createIndex({ "searchableAttributes": "text" })
   }
