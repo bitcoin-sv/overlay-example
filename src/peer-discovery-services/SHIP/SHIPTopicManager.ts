@@ -1,8 +1,8 @@
 import { AdmittanceInstructions, TopicManager } from '@bsv/overlay'
 import { Transaction } from '@bsv/sdk'
 import pushdrop from 'pushdrop'
-import { verifyToken } from '../utils/verifyToken'
-import { isValidDomain } from '../utils/isValidDomain'
+import { verifyToken } from '../utils/verifyToken.js'
+import { isValidDomain } from '../utils/isValidDomain.js'
 
 /**
  * SHIP Topic Manager

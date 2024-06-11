@@ -25,11 +25,13 @@
     "esModuleInterop": true
   },
   "files": [
-    "src/index.ts"
+    "src/index.ts",
+    "src/types.d.ts"
   ],
   "include": [
     "src",
-    "knexfile.ts"
+    "knexfile.ts",
+    "src/types.d.ts"
   ],
   "exclude": [
     "dist",
