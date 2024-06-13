@@ -154,6 +154,10 @@ export class NinjaAdvertiser implements Advertiser {
    * @returns A promise that resolves to the revoked advertisement as TaggedBEEF.
    */
   async revokeAdvertisement(advertisement: SHIPAdvertisement | SLAPAdvertisement): Promise<TaggedBEEF> {
+    if (advertisement.beef === undefined || advertisement.outputIndex == undefined) {
+      throw new Error('Advertisement to revoke must contain tagged beef!')
+    }
+
     // Parse the transaction and UTXO to spend
     const advertisementTx = Transaction.fromBEEF(advertisement.beef)
     const outputToRedeem = advertisementTx.outputs[advertisement.outputIndex]
