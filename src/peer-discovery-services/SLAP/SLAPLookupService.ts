@@ -53,7 +53,7 @@ export class SLAPLookupService implements LookupService {
    * @param topic - The topic associated with the deleted output.
    */
   async outputDeleted?(txid: string, outputIndex: number, topic: string): Promise<void> {
-    if (topic !== 'tm_slap_service_availability') return
+    if (topic !== 'tm_slap') return
     await this.storage.deleteSLAPRecord(txid, outputIndex)
   }
 
@@ -66,7 +66,7 @@ export class SLAPLookupService implements LookupService {
     if (question.query === undefined || question.query === null) {
       throw new Error('A valid query must be provided!')
     }
-    if (question.service !== 'ls_slap_service_availability') {
+    if (question.service !== 'ls_slap') {
       throw new Error('Lookup service not supported!')
     }
 

@@ -36,8 +36,8 @@ export class SHIPTopicManager implements TopicManager {
           if (shipIdentifier !== 'SHIP') continue
 
           // Validate domainName and serviceName
-          if (isValidDomain(domainName) !== true) continue
-          // if (isValidTopicName(topicName) !== true) continue
+          if (!isValidDomain(domainName)) continue
+          // if (!isValidTopicName(topicName)) continue
 
           // Verify the token locking key and signature
           verifyToken(identityKey, result.lockingPublicKey, result.fields, result.signature, 'SHIP')

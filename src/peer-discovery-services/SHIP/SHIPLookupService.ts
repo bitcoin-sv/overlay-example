@@ -21,7 +21,7 @@ export class SHIPLookupService implements LookupService {
    * @param topic - The topic associated with the output.
    */
   async outputAdded?(txid: string, outputIndex: number, outputScript: Script, topic: string): Promise<void> {
-    if (topic !== 'tm_ship_service_hosts') return
+    if (topic !== 'tm_ship') return
 
     const result = pushdrop.decode({
       script: outputScript.toHex(),
@@ -41,7 +41,7 @@ export class SHIPLookupService implements LookupService {
    * @param topic - The topic associated with the spent output.
    */
   async outputSpent?(txid: string, outputIndex: number, topic: string): Promise<void> {
-    if (topic !== 'tm_ship_service_hosts') return
+    if (topic !== 'tm_ship') return
     await this.storage.deleteSHIPRecord(txid, outputIndex)
   }
 
@@ -52,7 +52,7 @@ export class SHIPLookupService implements LookupService {
    * @param topic - The topic associated with the deleted output.
    */
   async outputDeleted?(txid: string, outputIndex: number, topic: string): Promise<void> {
-    if (topic !== 'tm_ship_service_hosts') return
+    if (topic !== 'tm_ship') return
     await this.storage.deleteSHIPRecord(txid, outputIndex)
   }
 
@@ -65,7 +65,7 @@ export class SHIPLookupService implements LookupService {
     if (question.query === undefined || question.query === null) {
       throw new Error('A valid query must be provided!')
     }
-    if (question.service !== 'ls_ship_service_hosts') {
+    if (question.service !== 'ls_ship') {
       throw new Error('Lookup service not supported!')
     }
 
