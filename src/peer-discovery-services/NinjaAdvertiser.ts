@@ -220,23 +220,39 @@ export class NinjaAdvertiser implements Advertiser {
   }
 
   /**
-   * 
-   * @param outputScript 
-   * @returns 
+   * Parses an advertisement from the provided output script.
+   * @param outputScript - The output script to parse.
+   * @returns A SHIPAdvertisement or SLAPAdvertisement if the script matches the expected format, otherwise null.
    */
-  parseAdvertisement(outputScript: Script): SHIPAdvertisement | SLAPAdvertisement {
-    const result = pushdrop.decode({
-      script: outputScript,
-      fieldFormat: 'buffer'
-    })
+  parseAdvertisement(outputScript: Script): SHIPAdvertisement | SLAPAdvertisement | null {
+    try {
+      const result = pushdrop.decode({
+        script: outputScript.toHex(),
+        fieldFormat: 'buffer'
+      })
 
-    // TODO: support ship and slap
-    return {
-      identityKey: result.fields[0],
-      domainName: result.fields[1],
-      topicName: result.fields[2],
-      beef: result.fields[3],
-      outputIndex: result.fields[4]
+      const [protocol, identityKey, domainName, topicOrServiceName] = result.fields.map((field: { toString: (arg: string) => string }) => field.toString('utf8'))
+
+      if (protocol === 'SHIP') {
+        return {
+          protocol: 'SHIP',
+          identityKey,
+          domainName,
+          topicName: topicOrServiceName
+        }
+      } else if (protocol === 'SLAP') {
+        return {
+          protocol: 'SLAP',
+          identityKey,
+          domainName,
+          serviceName: topicOrServiceName
+        }
+      } else {
+        return null
+      }
+    } catch (error) {
+      console.error('Error parsing advertisement:', error)
+      return null
     }
   }
 }

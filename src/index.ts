@@ -15,8 +15,6 @@ import { SLAPLookupService } from './peer-discovery-services/SLAP/SLAPLookupServ
 import { SHIPStorage } from './peer-discovery-services/SHIP/SHIPStorage.js'
 import { SLAPStorage } from './peer-discovery-services/SLAP/SLAPStorage.js'
 import { NinjaAdvertiser } from './peer-discovery-services/NinjaAdvertiser.js'
-import { Ninja } from 'ninja-base'
-import { SHIPAdvertisement } from '@bsv/overlay/SHIPAdvertisement.ts'
 import { Advertiser } from '@bsv/overlay/Advertiser.ts'
 import { SHIPTopicManager } from './peer-discovery-services/SHIP/SHIPTopicManager.js'
 import { SLAPTopicManager } from './peer-discovery-services/SLAP/SLAPTopicManager.js'
@@ -92,9 +90,9 @@ const initialization = async () => {
           {
             httpClient: new NodejsHttpClient(https)
           }),
+        HOSTING_DOMAIN as string,
         new ARC('https://arc.taal.com', arcConfig),
-        ninjaAdvertiser,
-        HOSTING_DOMAIN
+        ninjaAdvertiser
       )
 
       // Make sure we have advertisements for all the topics / lookup services we support.
