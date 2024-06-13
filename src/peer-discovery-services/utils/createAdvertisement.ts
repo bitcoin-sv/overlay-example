@@ -1,4 +1,4 @@
-import { getPaymentAddress } from 'sendover'
+import { getPaymentPrivateKey } from 'sendover'
 import pushdrop from 'pushdrop'
 import { Ninja } from 'ninja-base'
 import { TaggedBEEF } from '@bsv/overlay'
@@ -18,26 +18,25 @@ export async function createAdvertisement(
   ninja: Ninja,
   note: string
 ): Promise<TaggedBEEF> {
+  const identityKey = PublicKey.fromPrivateKey(new PrivateKey(privateKey, 'hex')).toString()
+
+  // Derive a locking private key using BRC-42 derivation scheme
+  const derivedPrivateKey = getPaymentPrivateKey({
+    recipientPrivateKey: privateKey,
+    senderPublicKey: identityKey,
+    invoiceNumber: `2-${protocol}-1`,
+    returnType: 'hex'
+  })
+
   const lockingScript = await pushdrop.create({
     fields: [
       Buffer.from(protocol), // SHIP | SLAP
-      Buffer.from(PublicKey.fromPrivateKey(new PrivateKey(privateKey, 'hex')).toString(), 'hex'),
+      Buffer.from(identityKey, 'hex'),
       Buffer.from(domainName),
       Buffer.from(topicOrServiceName)
     ],
-    key: privateKey
+    key: derivedPrivateKey
   })
-
-  const expectedPublicKey = getPaymentAddress({
-    senderPrivateKey: '0000000000000000000000000000000000000000000000000000000000000001',
-    recipientPublicKey: privateKey,
-    invoiceNumber: `2-${protocol}-1`,
-    returnType: 'publicKey'
-  })
-
-  if (lockingScript.toString('hex') !== expectedPublicKey) {
-    throw new Error('Invalid locking key!')
-  }
 
   // Put in a basket if we want to track it.
   const tx = await ninja.getTransactionWithOutputs({
