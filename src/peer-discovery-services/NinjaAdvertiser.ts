@@ -243,7 +243,13 @@ export class NinjaAdvertiser implements Advertiser {
         fieldFormat: 'buffer'
       })
 
-      const [protocol, identityKey, domain, topicOrServiceName] = result.fields.map((field: { toString: (arg: string) => string }) => field.toString('utf8'))
+      if (result.fields.length < 4) {
+        return null
+      }
+      const protocol = result.fields[0].toString()
+      const identityKey = result.fields[1].toString('hex')
+      const domain = result.fields[2].toString()
+      const topicOrServiceName = result.fields[3].toString()
 
       if (protocol === 'SHIP') {
         return {

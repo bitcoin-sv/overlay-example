@@ -29,8 +29,12 @@ export class SLAPLookupService implements LookupService {
       fieldFormat: 'buffer'
     })
 
-    const [slapIdentifier, identityKey, domain, service] = result.fields.map((field: { toString: (arg: string) => string }) => field.toString('utf8'))
-    if (slapIdentifier !== 'SLAP') return
+    const protocol = result.fields[0].toString()
+    const identityKey = result.fields[1].toString('hex')
+    const domain = result.fields[2].toString()
+    const service = result.fields[3].toString()
+
+    if (protocol !== 'SLAP') return
 
     await this.storage.storeSLAPRecord(txid, outputIndex, identityKey, domain, service)
   }

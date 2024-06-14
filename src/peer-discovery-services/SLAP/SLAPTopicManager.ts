@@ -41,7 +41,7 @@ export class SLAPTopicManager implements TopicManager {
 
           // Validate domain and service
           // if (isValidDomain(domain) !== true) continue
-          if (isValidServiceName(service) !== true) continue
+          if (!isValidServiceName(service)) continue
 
           // Verify the token locking key and signature
           verifyToken(identityKey, result.lockingPublicKey, result.fields, result.signature, 'SLAP')
