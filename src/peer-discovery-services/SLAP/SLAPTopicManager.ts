@@ -33,12 +33,15 @@ export class SLAPTopicManager implements TopicManager {
 
           if (result.fields.length !== 4) continue // SLAP tokens should have 4 fields
 
-          const [slapIdentifier, identityKey, domainName, serviceName] = result.fields.map((field: { toString: (arg: string) => string }) => field.toString('utf8'))
+          const slapIdentifier = result.fields[0].toString()
+          const identityKey = result.fields[1].toString('hex')
+          // const domain = result.fields[2].toString()
+          const service = result.fields[3].toString()
           if (slapIdentifier !== 'SLAP') continue
 
-          // Validate domainName and serviceName
-          if (isValidDomain(domainName) !== true) continue
-          if (isValidServiceName(serviceName) !== true) continue
+          // Validate domain and service
+          // if (isValidDomain(domain) !== true) continue
+          if (isValidServiceName(service) !== true) continue
 
           // Verify the token locking key and signature
           verifyToken(identityKey, result.lockingPublicKey, result.fields, result.signature, 'SLAP')

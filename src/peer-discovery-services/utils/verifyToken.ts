@@ -1,5 +1,7 @@
 import { PublicKey, Signature } from '@bsv/sdk'
 import { getPaymentAddress } from 'sendover'
+import dotenv from 'dotenv'
+dotenv.config()
 
 /**
  * Verifies the BRC-48 locking key and the signature.
@@ -18,7 +20,7 @@ export const verifyToken = (
   protocolId: string
 ): void => {
   const expectedPublicKey = getPaymentAddress({
-    senderPrivateKey: '0000000000000000000000000000000000000000000000000000000000000001',
+    senderPrivateKey: process.env.SERVER_PRIVATE_KEY,
     recipientPublicKey: identityKey,
     invoiceNumber: `2-${protocolId}-1`, // BRC-43 formatted invoice number
     returnType: 'publicKey'

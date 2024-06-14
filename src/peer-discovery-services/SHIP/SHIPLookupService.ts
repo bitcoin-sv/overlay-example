@@ -28,10 +28,13 @@ export class SHIPLookupService implements LookupService {
       fieldFormat: 'buffer'
     })
 
-    const [shipIdentifier, identityKey, domainName, topicName] = result.fields.map((field: { toString: (arg: string) => string }) => field.toString('utf8'))
+    const shipIdentifier = result.fields[0].toString()
+    const identityKey = result.fields[1].toString('hex')
+    const domain = result.fields[2].toString()
+    const topicSupported = result.fields[3].toString()
     if (shipIdentifier !== 'SHIP') return
 
-    await this.storage.storeSHIPRecord(txid, outputIndex, identityKey, domainName, topicName)
+    await this.storage.storeSHIPRecord(txid, outputIndex, identityKey, domain, topicSupported)
   }
 
   /**
@@ -69,21 +72,21 @@ export class SHIPLookupService implements LookupService {
       throw new Error('Lookup service not supported!')
     }
 
-    const { domainName, topicName } = question.query as SHIPQuery
+    const { domain, topic } = question.query as SHIPQuery
 
     // Validate lookup query
-    if (domainName !== undefined && domainName !== null && topicName !== undefined && topicName !== null) {
-      // If both domainName and topicName are provided, construct a query with both
-      const records = await this.storage.findRecord({ domainName, topicName })
+    if (domain !== undefined && domain !== null && topic !== undefined && topic !== null) {
+      // If both domain and topic are provided, construct a query with both
+      const records = await this.storage.findRecord({ domain, topic })
       return records
-    } else if (domainName !== undefined && domainName !== null) {
-      const records = await this.storage.findRecord({ domainName })
+    } else if (domain !== undefined && domain !== null) {
+      const records = await this.storage.findRecord({ domain })
       return records
-    } else if (topicName !== undefined && topicName !== null) {
-      const records = await this.storage.findRecord({ topicName })
+    } else if (topic !== undefined && topic !== null) {
+      const records = await this.storage.findRecord({ topic })
       return records
     } else {
-      throw new Error('A valid domainName or topicName must be provided in the query!')
+      throw new Error('A valid domain or topic must be provided in the query!')
     }
   }
 

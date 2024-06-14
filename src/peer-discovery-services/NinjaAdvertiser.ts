@@ -43,7 +43,7 @@ export class NinjaAdvertiser implements Advertiser {
       this.privateKey,
       'SHIP',
       this.hostingDomain,
-      `tm_${topic}`,
+      topic,
       this.ninja,
       'SHIP Advertisement Issuance'
     )
@@ -59,7 +59,7 @@ export class NinjaAdvertiser implements Advertiser {
       this.privateKey,
       'SLAP',
       this.hostingDomain,
-      `ls_${service}`,
+      service,
       this.ninja,
       'SLAP Advertisement Issuance'
     )
@@ -71,37 +71,44 @@ export class NinjaAdvertiser implements Advertiser {
    * @returns A promise that resolves to an array of SHIP advertisements.
    */
   async findAllSHIPAdvertisements(topic: string): Promise<SHIPAdvertisement[]> {
+    const advertisements: SHIPAdvertisement[] = []
     // Note: consider using tags
     const results = await this.ninja.getTransactionOutputs({
       basket: 'tm_ship',
-      type: 'output',
-      tagQueryMode: 'all',
-      limit: 100 // Adjust as needed
+      includeBasket: true,
+      spendable: true
+      // type: 'output',
+      // tagQueryMode: 'all',
+      // limit: 100 // Adjust as needed
     })
 
-    const advertisements: SHIPAdvertisement[] = []
-
     results.forEach((output: NinjaGetTransactionOutputsResultApi) => {
-      const beef = toBEEFfromEnvelope({
-        rawTx: output.envelope?.rawTx as string,
-        inputs: output.envelope?.inputs
-      }).beef
+      try {
+        const beef = toBEEFfromEnvelope({
+          rawTx: output.envelope?.rawTx as string,
+          proof: output.envelope?.proof,
+          inputs: output.envelope?.inputs,
+          txid: output.txid
+        }).beef
 
-      const fields = pushdrop.decode({
-        script: output.outputScript,
-        fieldFormat: 'buffer'
-      }).fields
+        const fields = pushdrop.decode({
+          script: output.outputScript,
+          fieldFormat: 'buffer'
+        }).fields
 
-      // Make sure we only return those that match the topic.
-      if (fields.length >= 4 && fields[3].toString('utf8') === topic) {
-        advertisements.push({
-          protocol: fields[0].toString('utf8'),
-          identityKey: fields[1].toString('utf8'),
-          domainName: fields[2].toString('utf8'),
-          topicName: fields[3].toString('utf8'),
-          beef,
-          outputIndex: output.vout
-        })
+        // Make sure we only return those that match the topic.
+        if (fields.length >= 4 && fields[3].toString() === topic) {
+          advertisements.push({
+            protocol: fields[0].toString(),
+            identityKey: fields[1].toString('hex'),
+            domain: fields[2].toString(),
+            topic: fields[3].toString(),
+            beef,
+            outputIndex: output.vout
+          })
+        }
+      } catch (error) {
+        console.error('Failed to parse SHIP token')
       }
     })
 
@@ -115,17 +122,18 @@ export class NinjaAdvertiser implements Advertiser {
    */
   async findAllSLAPAdvertisements(service: string): Promise<SLAPAdvertisement[]> {
     const results = await this.ninja.getTransactionOutputs({
-      basket: 'ls_slap',
-      type: 'output',
-      tagQueryMode: 'all',
-      limit: 100 // Adjust as needed
+      basket: 'tm_slap',
+      includeBasket: true,
+      spendable: true
     })
 
     const advertisements: SLAPAdvertisement[] = []
     results.forEach((output: NinjaGetTransactionOutputsResultApi) => {
       const beef = toBEEFfromEnvelope({
         rawTx: output.envelope?.rawTx as string,
-        inputs: output.envelope?.inputs
+        inputs: output.envelope?.inputs,
+        proof: output.envelope?.proof,
+        txid: output.txid
       }).beef
 
       const fields = pushdrop.decode({
@@ -134,12 +142,12 @@ export class NinjaAdvertiser implements Advertiser {
       }).fields
 
       // Make sure we only return those that match the topic.
-      if (fields.length >= 4 && fields[3].toString('utf8') === service) {
+      if (fields.length >= 4 && fields[3].toString() === service) {
         advertisements.push({
-          protocol: fields[0].toString('utf8'),
-          identityKey: fields[1].toString('utf8'),
-          domainName: fields[2].toString('utf8'),
-          serviceName: fields[3].toString('utf8'),
+          protocol: fields[0].toString(),
+          identityKey: fields[1].toString('hex'),
+          domain: fields[2].toString(),
+          service: fields[3].toString(),
           beef,
           outputIndex: output.vout
         })
@@ -157,7 +165,6 @@ export class NinjaAdvertiser implements Advertiser {
     if (advertisement.beef === undefined || advertisement.outputIndex == undefined) {
       throw new Error('Advertisement to revoke must contain tagged beef!')
     }
-
     // Parse the transaction and UTXO to spend
     const advertisementTx = Transaction.fromBEEF(advertisement.beef)
     const outputToRedeem = advertisementTx.outputs[advertisement.outputIndex]
@@ -182,14 +189,15 @@ export class NinjaAdvertiser implements Advertiser {
 
     const beef = toBEEFfromEnvelope({
       rawTx: revokeTx.rawTx as string,
-      inputs: revokeTx.inputs
+      inputs: revokeTx.inputs,
+      txid: revokeTx.txid
     }).beef
 
     // Determine if there is an associated topic
     // SLAP tokens are not associated with a topic
     const topics = []
-    if ((advertisement as SHIPAdvertisement).topicName !== undefined) {
-      topics.push((advertisement as SHIPAdvertisement).topicName)
+    if ((advertisement as SHIPAdvertisement).topic !== undefined) {
+      topics.push((advertisement as SHIPAdvertisement).topic)
     }
 
     return {
@@ -213,7 +221,7 @@ export class NinjaAdvertiser implements Advertiser {
             if (!topicToDomainsMap.has(topic)) {
               topicToDomainsMap.set(topic, new Set<string>())
             }
-            topicToDomainsMap.get(topic)?.add(advertisement.domainName)
+            topicToDomainsMap.get(topic)?.add(advertisement.domain)
           })
         }
       } catch (error) {
@@ -235,21 +243,21 @@ export class NinjaAdvertiser implements Advertiser {
         fieldFormat: 'buffer'
       })
 
-      const [protocol, identityKey, domainName, topicOrServiceName] = result.fields.map((field: { toString: (arg: string) => string }) => field.toString('utf8'))
+      const [protocol, identityKey, domain, topicOrServiceName] = result.fields.map((field: { toString: (arg: string) => string }) => field.toString('utf8'))
 
       if (protocol === 'SHIP') {
         return {
           protocol: 'SHIP',
           identityKey,
-          domainName,
-          topicName: topicOrServiceName
+          domain,
+          topic: topicOrServiceName
         }
       } else if (protocol === 'SLAP') {
         return {
           protocol: 'SLAP',
           identityKey,
-          domainName,
-          serviceName: topicOrServiceName
+          domain,
+          service: topicOrServiceName
         }
       } else {
         return null

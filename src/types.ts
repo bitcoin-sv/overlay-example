@@ -14,8 +14,8 @@ export interface SHIPRecord {
   txid: string
   outputIndex: number
   identityKey: string
-  domainName: string
-  topicName: string
+  domain: string
+  topic: string
   createdAt: Date
 }
 
@@ -23,17 +23,17 @@ export interface SLAPRecord {
   txid: string
   outputIndex: number
   identityKey: string
-  domainName: string
-  serviceName: string
+  domain: string
+  service: string
   createdAt: Date
 }
 
 export interface SHIPQuery {
-  domainName?: string
-  topicName?: string
+  domain?: string
+  topic?: string
 }
 
 export interface SLAPQuery {
-  domainName?: string
-  serviceName?: string
+  domain?: string
+  service?: string
 }

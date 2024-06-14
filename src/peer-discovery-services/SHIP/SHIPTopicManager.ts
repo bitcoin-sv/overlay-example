@@ -32,12 +32,16 @@ export class SHIPTopicManager implements TopicManager {
 
           if (result.fields.length !== 4) continue // SHIP tokens should have 4 fields
 
-          const [shipIdentifier, identityKey, domainName, topicName] = result.fields.map((field: { toString: (arg: string) => string }) => field.toString('utf8'))
+          const shipIdentifier = result.fields[0].toString()
+          const identityKey = result.fields[1].toString('hex')
+          const domain = result.fields[2].toString()
+          // const topic = result.fields[3].toString()
+
           if (shipIdentifier !== 'SHIP') continue
 
-          // Validate domainName and serviceName
-          if (!isValidDomain(domainName)) continue
-          // if (!isValidTopicName(topicName)) continue
+          // Validate domain and service
+          if (!isValidDomain(domain)) continue
+          // if (!isValidTopicName(topic)) continue
 
           // Verify the token locking key and signature
           verifyToken(identityKey, result.lockingPublicKey, result.fields, result.signature, 'SHIP')

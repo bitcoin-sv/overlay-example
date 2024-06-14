@@ -19,7 +19,7 @@ export class SLAPStorage {
    * Ensures the necessary indexes are created for the collections.
    */
   async ensureIndexes(): Promise<void> {
-    await this.slapRecords.createIndex({ domainName: 1, serviceName: 1 })
+    await this.slapRecords.createIndex({ domain: 1, service: 1 })
   }
 
   /**
@@ -27,16 +27,16 @@ export class SLAPStorage {
    * @param {string} txid transaction id
    * @param {number} outputIndex index of the UTXO
    * @param {string} identityKey identity key
-   * @param {string} domainName domain name
-   * @param {string} serviceName service name
+   * @param {string} domain domain name
+   * @param {string} service service name
    */
-  async storeSLAPRecord(txid: string, outputIndex: number, identityKey: string, domainName: string, serviceName: string): Promise<void> {
+  async storeSLAPRecord(txid: string, outputIndex: number, identityKey: string, domain: string, service: string): Promise<void> {
     await this.slapRecords.insertOne({
       txid,
       outputIndex,
       identityKey,
-      domainName,
-      serviceName,
+      domain,
+      service,
       createdAt: new Date()
     })
   }
@@ -52,10 +52,10 @@ export class SLAPStorage {
 
   /**
    * Finds SLAP records based on a given query object.
-   * @param {Object} query The query object which may contain properties for domainName or serviceName.
+   * @param {Object} query The query object which may contain properties for domain or service.
    * @returns {Promise<UTXOReference[]>} returns matching UTXO references
    */
-  async findRecord(query: { domainName?: string, serviceName?: string }): Promise<UTXOReference[]> {
+  async findRecord(query: { domain?: string, service?: string }): Promise<UTXOReference[]> {
     return await this.slapRecords.find(query)
       .project<UTXOReference>({ txid: 1, outputIndex: 1 })
       .toArray()

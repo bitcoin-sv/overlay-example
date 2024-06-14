@@ -13,7 +13,7 @@ import { PrivateKey, PublicKey } from '@bsv/sdk'
 export async function createAdvertisement(
   privateKey: string,
   protocol: 'SHIP' | 'SLAP',
-  domainName: string,
+  domain: string,
   topicOrServiceName: string,
   ninja: Ninja,
   note: string
@@ -32,7 +32,7 @@ export async function createAdvertisement(
     fields: [
       Buffer.from(protocol), // SHIP | SLAP
       Buffer.from(identityKey, 'hex'),
-      Buffer.from(domainName),
+      Buffer.from(domain),
       Buffer.from(topicOrServiceName)
     ],
     key: derivedPrivateKey
@@ -43,7 +43,7 @@ export async function createAdvertisement(
     outputs: [{
       satoshis: 1,
       script: lockingScript,
-      basket: `tm_${protocol}` // Put it in a basket for easy lookup
+      basket: protocol === 'SHIP' ? 'tm_ship' : 'tm_slap'
     }],
     note,
     autoProcess: true
@@ -51,11 +51,12 @@ export async function createAdvertisement(
 
   const beef = toBEEFfromEnvelope({
     rawTx: tx.rawTx as string,
-    inputs: tx.inputs
+    inputs: tx.inputs,
+    txid: tx.txid
   }).beef
 
   return {
     beef,
-    topics: [`tm_${protocol}`] // tm_ship | tm_slap
+    topics: [protocol === 'SHIP' ? 'tm_ship' : 'tm_slap']
   }
 }

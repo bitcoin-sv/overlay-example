@@ -22,17 +22,17 @@ export class SLAPLookupService implements LookupService {
    * @param topic - The topic associated with the output.
    */
   async outputAdded?(txid: string, outputIndex: number, outputScript: Script, topic: string): Promise<void> {
-    if (topic !== 'tm_slap_service_availability') return
+    if (topic !== 'tm_slap') return
 
     const result = pushdrop.decode({
       script: outputScript.toHex(),
       fieldFormat: 'buffer'
     })
 
-    const [slapIdentifier, identityKey, domainName, serviceName] = result.fields.map((field: { toString: (arg: string) => string }) => field.toString('utf8'))
+    const [slapIdentifier, identityKey, domain, service] = result.fields.map((field: { toString: (arg: string) => string }) => field.toString('utf8'))
     if (slapIdentifier !== 'SLAP') return
 
-    await this.storage.storeSLAPRecord(txid, outputIndex, identityKey, domainName, serviceName)
+    await this.storage.storeSLAPRecord(txid, outputIndex, identityKey, domain, service)
   }
 
   /**
@@ -42,7 +42,7 @@ export class SLAPLookupService implements LookupService {
    * @param topic - The topic associated with the spent output.
    */
   async outputSpent?(txid: string, outputIndex: number, topic: string): Promise<void> {
-    if (topic !== 'tm_slap_service_availability') return
+    if (topic !== 'tm_slap') return
     await this.storage.deleteSLAPRecord(txid, outputIndex)
   }
 
@@ -70,18 +70,18 @@ export class SLAPLookupService implements LookupService {
       throw new Error('Lookup service not supported!')
     }
 
-    const { domainName, serviceName } = question.query as SLAPQuery
+    const { domain, service } = question.query as SLAPQuery
 
     // Validate lookup query
-    if (domainName !== undefined && domainName !== null && serviceName !== undefined && serviceName !== null) {
-      // If both domainName and serviceName are provided, construct a query with both
-      return await this.storage.findRecord({ domainName, serviceName })
-    } else if (domainName !== undefined && domainName !== null) {
-      return await this.storage.findRecord({ domainName })
-    } else if (serviceName !== undefined && serviceName !== null) {
-      return await this.storage.findRecord({ serviceName })
+    if (domain !== undefined && domain !== null && service !== undefined && service !== null) {
+      // If both domain and service are provided, construct a query with both
+      return await this.storage.findRecord({ domain, service })
+    } else if (domain !== undefined && domain !== null) {
+      return await this.storage.findRecord({ domain })
+    } else if (service !== undefined && service !== null) {
+      return await this.storage.findRecord({ service })
     } else {
-      throw new Error('A valid domainName or serviceName must be provided in the query!')
+      throw new Error('A valid domain or service must be provided in the query!')
     }
   }
 

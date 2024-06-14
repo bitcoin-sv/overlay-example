@@ -1,5 +1,5 @@
 import { Collection, Db } from 'mongodb'
-import { SHIPRecord, UTXOReference } from '../../types.js' // TODO: Move type def
+import { SHIPRecord, UTXOReference } from '../../types.js'
 
 /**
  * Implements a storage engine for SHIP protocol
@@ -19,7 +19,7 @@ export class SHIPStorage {
    * Ensures the necessary indexes are created for the collections.
    */
   async ensureIndexes(): Promise<void> {
-    await this.shipRecords.createIndex({ domainName: 1, topicName: 1 })
+    await this.shipRecords.createIndex({ domain: 1, topic: 1 })
   }
 
   /**
@@ -27,16 +27,16 @@ export class SHIPStorage {
    * @param {string} txid transaction id
    * @param {number} outputIndex index of the UTXO
    * @param {string} identityKey identity key
-   * @param {string} domainName domain name
-   * @param {string} topicName topic name
+   * @param {string} domain domain name
+   * @param {string} topic topic name
    */
-  async storeSHIPRecord(txid: string, outputIndex: number, identityKey: string, domainName: string, topicName: string): Promise<void> {
+  async storeSHIPRecord(txid: string, outputIndex: number, identityKey: string, domain: string, topic: string): Promise<void> {
     await this.shipRecords.insertOne({
       txid,
       outputIndex,
       identityKey,
-      domainName,
-      topicName,
+      domain,
+      topic,
       createdAt: new Date()
     })
   }
@@ -52,10 +52,10 @@ export class SHIPStorage {
 
   /**
    * Finds SHIP records based on a given query object.
-   * @param {Object} query The query object which may contain properties for domainName or topicName.
+   * @param {Object} query The query object which may contain properties for domain or topic.
    * @returns {Promise<UTXOReference[]>} returns matching UTXO references
    */
-  async findRecord(query: { domainName?: string, topicName?: string }): Promise<UTXOReference[]> {
+  async findRecord(query: { domain?: string, topic?: string }): Promise<UTXOReference[]> {
     return await this.shipRecords.find(query)
       .project<UTXOReference>({ txid: 1, outputIndex: 1 })
       .toArray()

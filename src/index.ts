@@ -63,9 +63,9 @@ const initialization = async () => {
       }
 
       // Create storage instances
-      const helloStorage = new HelloWorldStorage(mongoClient.db(DB_NAME as string))
-      const shipStorage = new SHIPStorage(mongoClient.db(DB_NAME as string))
-      const slapStorage = new SLAPStorage(mongoClient.db(DB_NAME as string))
+      const helloStorage = new HelloWorldStorage(mongoClient.db(`${NODE_ENV}_helloworld_lookupService`))
+      const shipStorage = new SHIPStorage(mongoClient.db(`${NODE_ENV}_ship_lookupService`))
+      const slapStorage = new SLAPStorage(mongoClient.db(`${NODE_ENV}_slap_lookupService`))
 
       ninjaAdvertiser = new NinjaAdvertiser(
         SERVER_PRIVATE_KEY as string,
