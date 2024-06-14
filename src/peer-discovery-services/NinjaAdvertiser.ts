@@ -71,7 +71,7 @@ export class NinjaAdvertiser implements Advertiser {
    * @param topic - The topic name to search for.
    * @returns A promise that resolves to an array of SHIP advertisements.
    */
-  async findAllSHIPAdvertisements(topic: string): Promise<SHIPAdvertisement[]> {
+  async findAllSHIPAdvertisements(): Promise<SHIPAdvertisement[]> {
     const advertisements: SHIPAdvertisement[] = []
     // Note: consider using tags
     const results = await this.ninja.getTransactionOutputs({
@@ -121,7 +121,7 @@ export class NinjaAdvertiser implements Advertiser {
    * @param service - The service name to search for.
    * @returns A promise that resolves to an array of SLAP advertisements.
    */
-  async findAllSLAPAdvertisements(service: string): Promise<SLAPAdvertisement[]> {
+  async findAllSLAPAdvertisements(): Promise<SLAPAdvertisement[]> {
     const results = await this.ninja.getTransactionOutputs({
       basket: 'tm_slap',
       includeBasket: true,
@@ -219,31 +219,6 @@ export class NinjaAdvertiser implements Advertiser {
       beef,
       topics: [advertisement.protocol === 'SHIP' ? 'tm_ship' : 'tm_slap']
     }
-  }
-
-  /**
-   * Finds all SHIP advertisements for the given topics and maps them to their associated unique domains.
-   * @param topics - An array of topic names to lookup advertisements for.
-   * @returns A promise that resolves to a map where the key is the topic name and the value is a set of unique domain names associated with that topic.
-   */
-  async findAdvertisementsForTopics(topics: string[]): Promise<Map<string, Set<string>>> {
-    const topicToDomainsMap = new Map<string, Set<string>>()
-    for (const topic of topics) {
-      try {
-        const shipAdvertisements = await this.findAllSHIPAdvertisements(topic)
-        if (shipAdvertisements !== undefined && shipAdvertisements.length > 0) {
-          shipAdvertisements.forEach((advertisement: SHIPAdvertisement) => {
-            if (!topicToDomainsMap.has(topic)) {
-              topicToDomainsMap.set(topic, new Set<string>())
-            }
-            topicToDomainsMap.get(topic)?.add(advertisement.domain)
-          })
-        }
-      } catch (error) {
-        console.error(`Error looking up topic ${String(topic)}:`, error)
-      }
-    }
-    return topicToDomainsMap
   }
 
   /**
