@@ -2,11 +2,12 @@ import { TaggedBEEF } from '@bsv/overlay/TaggedBEEF.ts'
 import pushdrop from 'pushdrop'
 import { Ninja, NinjaGetTransactionOutputsResultApi } from 'ninja-base'
 import { toBEEFfromEnvelope } from '@babbage/sdk-ts'
-import { Transaction, Script } from '@bsv/sdk'
+import { Transaction, Script, PublicKey, PrivateKey } from '@bsv/sdk'
 import { Advertiser } from '@bsv/overlay/Advertiser.ts'
 import { SHIPAdvertisement } from '@bsv/overlay/SHIPAdvertisement.ts'
 import { SLAPAdvertisement } from '@bsv/overlay/SLAPAdvertisement.ts'
 import { createAdvertisement } from './utils/createAdvertisement.js'
+import { getPaymentPrivateKey } from 'sendover'
 
 /**
  * Implements the Advertiser interface for managing SHIP and SLAP advertisements using a Ninja.
@@ -85,10 +86,10 @@ export class NinjaAdvertiser implements Advertiser {
     results.forEach((output: NinjaGetTransactionOutputsResultApi) => {
       try {
         const beef = toBEEFfromEnvelope({
+          txid: output.txid,
           rawTx: output.envelope?.rawTx as string,
           proof: output.envelope?.proof,
-          inputs: output.envelope?.inputs,
-          txid: output.txid
+          inputs: output.envelope?.inputs
         }).beef
 
         const fields = pushdrop.decode({
@@ -96,8 +97,8 @@ export class NinjaAdvertiser implements Advertiser {
           fieldFormat: 'buffer'
         }).fields
 
-        // Make sure we only return those that match the topic.
-        if (fields.length >= 4 && fields[3].toString() === topic) {
+        // Return advertisement details
+        if (fields.length >= 4) {
           advertisements.push({
             protocol: fields[0].toString(),
             identityKey: fields[1].toString('hex'),
@@ -129,28 +130,32 @@ export class NinjaAdvertiser implements Advertiser {
 
     const advertisements: SLAPAdvertisement[] = []
     results.forEach((output: NinjaGetTransactionOutputsResultApi) => {
-      const beef = toBEEFfromEnvelope({
-        rawTx: output.envelope?.rawTx as string,
-        inputs: output.envelope?.inputs,
-        proof: output.envelope?.proof,
-        txid: output.txid
-      }).beef
+      try {
+        const beef = toBEEFfromEnvelope({
+          txid: output.txid,
+          rawTx: output.envelope?.rawTx as string,
+          inputs: output.envelope?.inputs,
+          proof: output.envelope?.proof
+        }).beef
 
-      const fields = pushdrop.decode({
-        script: output.outputScript,
-        fieldFormat: 'buffer'
-      }).fields
+        const fields = pushdrop.decode({
+          script: output.outputScript,
+          fieldFormat: 'buffer'
+        }).fields
 
-      // Make sure we only return those that match the topic.
-      if (fields.length >= 4 && fields[3].toString() === service) {
-        advertisements.push({
-          protocol: fields[0].toString(),
-          identityKey: fields[1].toString('hex'),
-          domain: fields[2].toString(),
-          service: fields[3].toString(),
-          beef,
-          outputIndex: output.vout
-        })
+        // Return advertisement details
+        if (fields.length >= 4) {
+          advertisements.push({
+            protocol: fields[0].toString(),
+            identityKey: fields[1].toString('hex'),
+            domain: fields[2].toString(),
+            service: fields[3].toString(),
+            beef,
+            outputIndex: output.vout
+          })
+        }
+      } catch (error) {
+        console.error('Failed to parse SLAP token')
       }
     })
     return advertisements
@@ -162,15 +167,26 @@ export class NinjaAdvertiser implements Advertiser {
    * @returns A promise that resolves to the revoked advertisement as TaggedBEEF.
    */
   async revokeAdvertisement(advertisement: SHIPAdvertisement | SLAPAdvertisement): Promise<TaggedBEEF> {
-    if (advertisement.beef === undefined || advertisement.outputIndex == undefined) {
+    if (advertisement.beef === undefined || advertisement.outputIndex === undefined) {
       throw new Error('Advertisement to revoke must contain tagged beef!')
     }
     // Parse the transaction and UTXO to spend
     const advertisementTx = Transaction.fromBEEF(advertisement.beef)
+    const adTxid = advertisementTx.id('hex')
     const outputToRedeem = advertisementTx.outputs[advertisement.outputIndex]
+    const identityKey = PublicKey.fromPrivateKey(new PrivateKey(this.privateKey, 'hex')).toString()
+
+    // Derive a unlocking private key using BRC-42 derivation scheme
+    const derivedPrivateKey = getPaymentPrivateKey({
+      recipientPrivateKey: this.privateKey,
+      senderPublicKey: identityKey,
+      invoiceNumber: `2-${advertisement.protocol}-1`,
+      returnType: 'hex'
+    })
+
     const unlockingScript = await pushdrop.redeem({
-      key: this.privateKey,
-      prevTxId: advertisementTx.id().toString(),
+      key: derivedPrivateKey,
+      prevTxId: adTxid,
       outputIndex: advertisement.outputIndex,
       lockingScript: outputToRedeem.lockingScript.toHex(),
       outputAmount: outputToRedeem.satoshis
@@ -178,12 +194,18 @@ export class NinjaAdvertiser implements Advertiser {
 
     // Create a new transaction that spends the SHIP or SLAP advertisement issuance token
     const revokeTx = await this.ninja.getTransactionWithOutputs({
-      outputs: [{
-        satoshis: outputToRedeem.satoshis ?? 1,
-        script: unlockingScript
-      }],
+      inputs: {
+        [adTxid]: {
+          rawTx: advertisementTx.toHex(),
+          outputsToRedeem: [{
+            index: advertisement.outputIndex,
+            unlockingScript
+          }]
+        }
+      },
+      outputs: [],
       labels: [],
-      note: 'Revoke advertisement',
+      note: `Revoke ${advertisement.protocol} advertisement`,
       autoProcess: true
     })
 
@@ -193,16 +215,9 @@ export class NinjaAdvertiser implements Advertiser {
       txid: revokeTx.txid
     }).beef
 
-    // Determine if there is an associated topic
-    // SLAP tokens are not associated with a topic
-    const topics = []
-    if ((advertisement as SHIPAdvertisement).topic !== undefined) {
-      topics.push((advertisement as SHIPAdvertisement).topic)
-    }
-
     return {
       beef,
-      topics
+      topics: [advertisement.protocol === 'SHIP' ? 'tm_ship' : 'tm_slap']
     }
   }
 

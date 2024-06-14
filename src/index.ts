@@ -57,15 +57,15 @@ const initialization = async () => {
       const arcConfig: ArcConfig = {
         deploymentId: '1',
         apiKey: TAAL_API_KEY,
-        callbackUrl: 'https://aa47-74-51-29-58.ngrok-free.app/arc-ingest', // TODO: Replace with ${HOSTING_DOMAIN}/arc-ingest
+        callbackUrl: `${HOSTING_DOMAIN as string}/arc-ingest`,
         callbackToken: 'fredFlinstones',
         httpClient: new NodejsHttpClient(https)
       }
 
       // Create storage instances
-      const helloStorage = new HelloWorldStorage(mongoClient.db(`${NODE_ENV}_helloworld_lookupService`))
-      const shipStorage = new SHIPStorage(mongoClient.db(`${NODE_ENV}_ship_lookupService`))
-      const slapStorage = new SLAPStorage(mongoClient.db(`${NODE_ENV}_slap_lookupService`))
+      const helloStorage = new HelloWorldStorage(mongoClient.db(`${NODE_ENV as string}_helloworld_lookupService`))
+      const shipStorage = new SHIPStorage(mongoClient.db(`${NODE_ENV as string}_ship_lookupService`))
+      const slapStorage = new SLAPStorage(mongoClient.db(`${NODE_ENV as string}_slap_lookupService`))
 
       ninjaAdvertiser = new NinjaAdvertiser(
         SERVER_PRIVATE_KEY as string,
@@ -94,9 +94,6 @@ const initialization = async () => {
         new ARC('https://arc.taal.com', arcConfig),
         ninjaAdvertiser
       )
-
-      // Make sure we have advertisements for all the topics / lookup services we support.
-      await engine.syncAdvertisements()
       console.log('Engine initialized successfully')
     } catch (engineError) {
       console.error('Error during Engine initialization:', engineError)
@@ -291,7 +288,17 @@ initialization()
   .then(() => {
     console.log(PORT)
     app.listen(PORT, () => {
-      console.log(`BSV Overlay Services Engine is listening on port ${PORT as string}`)
+      (async () => {
+        console.log(`BSV Overlay Services Engine is listening on port ${PORT as string}`)
+        // Make sure we have advertisements for all the topics / lookup services we support.
+        try {
+          await engine.syncAdvertisements()
+        } catch (error) {
+          console.error('Failed to sync advertisements:', error)
+        }
+      })().catch((error) => {
+        console.error('Unexpected error occurred:', error)
+      })
     })
   })
   .catch((error) => {
