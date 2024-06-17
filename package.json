@@ -25,7 +25,8 @@
     "mysql2": "^3.10.0",
     "ninja-base": "^0.3.36",
     "pushdrop": "^0.1.56",
-    "sendover": "^1.3.23"
+    "sendover": "^1.3.23",
+    "uhrp-url": "^0.1.10"
   },
   "devDependencies": {
     "@types/body-parser": "^1.19.5",
