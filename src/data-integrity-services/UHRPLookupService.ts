@@ -107,7 +107,83 @@ export class UHRPLookupService implements LookupService {
    * @returns A promise that resolves to the documentation string
    */
   async getDocumentation(): Promise<string> {
-    return 'This is the UHRP overlay service!'
+    return `
+    # UHRP Overlay Lookup Service
+
+    This service provides lookup functionality for UHRP (Universal Hash Resolution Protocol) tokens using BRC-48 style Pay-to-Push-Drop tokens.
+
+    ## Methods
+
+    ### outputAdded
+    Decodes UHRP token fields from the output script and stores them.
+
+    **Parameters:**
+    - \`txid: string\` - The transaction ID containing the output.
+    - \`outputIndex: number\` - The index of the output in the transaction.
+    - \`outputScript: Script\` - The script of the output to be processed.
+    - \`topic: string\` - The topic associated with the output.
+
+    ### outputSpent
+    Removes the corresponding record from the storage when an output is spent.
+
+    **Parameters:**
+    - \`txid: string\` - The transaction ID of the spent output.
+    - \`outputIndex: number\` - The index of the spent output.
+    - \`topic: string\` - The topic associated with the spent output.
+
+    ### outputDeleted
+    Removes the corresponding record from the storage when an output is deleted.
+
+    **Parameters:**
+    - \`txid: string\` - The transaction ID of the deleted output.
+    - \`outputIndex: number\` - The index of the deleted output.
+    - \`topic: string\` - The topic associated with the deleted output.
+
+    ### lookup
+    Answers a lookup query by searching the storage for records matching the query parameters.
+
+    **Parameters:**
+    - \`question: LookupQuestion\` - The lookup question to be answered.
+
+    **Returns:**
+    - A promise that resolves to a \`LookupAnswer\` or \`LookupFormula\`.
+
+    ### getDocumentation
+    Returns documentation specific to this overlay lookup service.
+
+    **Returns:**
+    - A promise that resolves to the documentation string.
+
+    ### getMetaData
+    Returns metadata associated with this lookup service.
+
+    **Returns:**
+    - A promise that resolves to an object containing metadata.
+
+    ## Storage
+    The UHRPLookupService relies on the \`UHRPStorage\` instance to manage records.
+
+    ## Dependencies
+    - \`@bsv/overlay\`
+    - \`@bsv/sdk\`
+    - \`pushdrop\`
+    - \`uhrp-url\`
+
+    ## Example Usage
+    \`\`\`javascript
+    const storage = new UHRPStorage();
+    const lookupService = new UHRPLookupService(storage);
+
+    const txid = 'some-transaction-id';
+    const outputIndex = 0;
+    const outputScript = new Script('some-script');
+    const topic = 'tm_uhrp';
+
+    lookupService.outputAdded(txid, outputIndex, outputScript, topic)
+      .then(() => console.log('Output added successfully'))
+      .catch(error => console.error('Error adding output:', error));
+    \`\`\`
+  `
   }
 
   /**

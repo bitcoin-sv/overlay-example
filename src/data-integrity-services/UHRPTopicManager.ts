@@ -139,28 +139,80 @@ export class UHRPTopicManager implements TopicManager {
 
   /**
    * Get the documentation associated with this topic manager
+   * TODO: Extract docs to external import
    * @returns A promise that resolves to a string containing the documentation
    */
   async getDocumentation(): Promise<string> {
     return `
-UHRP Lookup Service:
-  
-The UHRPLookupService is a custom lookup mechanism for querying and storing UHRP (Unique Hashed Record Pointer) records. It provides a decentralized storage engine, enabling clients to store and retrieve UHRP records efficiently.
+    # UHRP Topic Manager
 
-Functions:
+    The UHRPTopicManager is responsible for managing and verifying the Universal Hash Resolution Protocol (UHRP) advertisement tokens. It ensures that the tokens conform to the protocol specifications and facilitates the identification of admissible outputs within a transaction.
 
-- `outputAdded`: Notifies the service of new outputs added to the blockchain, allowing for real-time record updates.
-- `outputSpent`: Removes records when an output is spent, ensuring data consistency.
-- `outputDeleted`: Deletes records when an output is deleted, maintaining a accurate record of available UHRP data.
+    ## Methods
 
-Lookup Mechanism:
+    ### identifyAdmissibleOutputs
 
-The UHRPLookupService provides a lookup mechanism to query for specific UHRP records based on their URL or retention period. This enables clients to retrieve relevant information quickly and efficiently.
+    Identifies if the outputs are admissible depending on the particular protocol requirements.
 
-This service facilitates decentralized data storage and retrieval, supporting various use cases in the overlay network.
+    **Parameters:**
+    - \`beef: number[]\` - The transaction data in BEEF format.
+    - \`previousCoins: number[]\` - The previous coins to consider.
 
-Note: The PushDrop package is used to decode BRC-48 style Pay-to-Push-Drop tokens.
-`
+    **Returns:**
+    - A promise that resolves with the \`AdmittanceInstructions\`.
+
+    ### getDocumentation
+
+    Provides documentation associated with this topic manager.
+
+    **Returns:**
+    - A promise that resolves to a string containing the documentation.
+
+    ### getMetaData
+
+    Provides metadata about the topic manager.
+
+    **Returns:**
+    - A promise that resolves to an object containing metadata.
+    - Throws an error indicating the method is not implemented.
+
+    ## Usage
+
+    The UHRPTopicManager is used to manage UHRP advertisement tokens. It decodes the tokens using the PushDrop package and validates the fields according to the UHRP specification. The validation includes checking the protocol address, content hash, action type, URL format, expiry timestamp, and content length. It also verifies the digital signature to ensure the authenticity of the token.
+
+    ## Example
+
+    \`\`\`typescript
+    import { UHRPTopicManager } from './UHRPTopicManager'
+
+    // Create a new instance of UHRPTopicManager
+    const uhrpTopicManager = new UHRPTopicManager()
+
+    // Example transaction data in BEEF format
+    const beefTransaction = [...] // BEEF format data
+    const previousCoins = [...] // Previous coins
+
+    // Identify admissible outputs
+    uhrpTopicManager.identifyAdmissibleOutputs(beefTransaction, previousCoins)
+      .then(admittanceInstructions => {
+        console.log('Admissible outputs:', admittanceInstructions.outputsToAdmit)
+      })
+      .catch(error => {
+        console.error('Error identifying admissible outputs:', error)
+      })
+    \`\`\`
+
+    ## Dependencies
+
+    - \`@bsv/overlay\` for overlay network components.
+    - \`@bsv/sdk\` for Bitcoin Script handling.
+    - \`pushdrop\` for decoding BRC-48 style Pay-to-Push-Drop tokens.
+
+    ## Notes
+
+    - The PushDrop package is used to decode BRC-48 style Pay-to-Push-Drop tokens.
+    - Ensure that the UHRP advertisement tokens conform to the protocol specifications for successful validation and admittance.
+    `
   }
 
   /**

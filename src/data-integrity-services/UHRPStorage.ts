@@ -14,11 +14,13 @@ export class UHRPStorage {
   }
 
   /**
-   * Stores record of certification
-   * @param {string} txid transaction id
-   * @param {number} outputIndex index of the UTXO
-   * @param {string} uhrpURL
-   * @param {number} retentionPeriod
+   * Stores a new UHRP record
+   * 
+   * @param {string} txid - The transaction ID containing the UTXO
+   * @param {number} outputIndex - The index of the UTXO within the transaction
+   * @param {string} uhrpURL - The UHRP URL where the content is available for download
+   * @param {number} retentionPeriod - The retention period for the content, in seconds
+   * @returns {Promise<void>} - A promise that resolves when the record is stored
    */
   async storeRecord(txid: string, outputIndex: number, uhrpURL: string, retentionPeriod: number): Promise<void> {
     // Insert new record
@@ -47,7 +49,7 @@ export class UHRPStorage {
    */
   async findByUHRPUrl(uhrpURL: string): Promise<UTXOReference[]> {
     // Validate search query param
-    if (uhrpURL === '' || uhrpURL === undefined) {
+    if (uhrpURL.trim() === '') {
       return []
     }
 
@@ -66,7 +68,10 @@ export class UHRPStorage {
    * @param retentionPeriod
    */
   async findByRetentionPeriod(retentionPeriod: number): Promise<UTXOReference[]> {
-    // TODO: Validate search query param
+    // Validate search query param
+    if (retentionPeriod < 0) {
+      throw new Error('Invalid retention period. It must be a non-negative number.')
+    }
 
     // Return matching records based on the query
     return await this.records.find({ retentionPeriod })

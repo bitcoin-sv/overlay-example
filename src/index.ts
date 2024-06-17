@@ -18,6 +18,9 @@ import { NinjaAdvertiser } from './peer-discovery-services/NinjaAdvertiser.js'
 import { Advertiser } from '@bsv/overlay/Advertiser.ts'
 import { SHIPTopicManager } from './peer-discovery-services/SHIP/SHIPTopicManager.js'
 import { SLAPTopicManager } from './peer-discovery-services/SLAP/SLAPTopicManager.js'
+import { UHRPStorage } from './data-integrity-services/UHRPStorage.js'
+import { UHRPTopicManager } from './data-integrity-services/UHRPTopicManager.js'
+import { UHRPLookupService } from './data-integrity-services/UHRPLookupService.js'
 
 const knex = Knex(knexfile.development)
 const app = express()
@@ -29,7 +32,6 @@ app.use(bodyparser.raw({ limit: '1gb', type: 'application/octet-stream' }))
 const {
   PORT,
   DB_CONNECTION,
-  DB_NAME,
   NODE_ENV,
   HOSTING_DOMAIN,
   TAAL_API_KEY,
@@ -67,6 +69,7 @@ const initialization = async () => {
 
       // Create storage instances
       const helloStorage = new HelloWorldStorage(mongoClient.db(`${NODE_ENV as string}_helloworld_lookupService`))
+      const uhrpStorage = new UHRPStorage(mongoClient.db(`${NODE_ENV as string}_uhrp_lookupService`))
       const shipStorage = new SHIPStorage(mongoClient.db(`${NODE_ENV as string}_ship_lookupService`))
       const slapStorage = new SLAPStorage(mongoClient.db(`${NODE_ENV as string}_slap_lookupService`))
 
@@ -79,11 +82,13 @@ const initialization = async () => {
       engine = new Engine(
         {
           tm_helloworld: new HelloWorldTopicManager(),
+          tm_uhrp: new UHRPTopicManager(),
           tm_ship: new SHIPTopicManager(),
           tm_slap: new SLAPTopicManager()
         },
         {
           ls_helloworld: new HelloWorldLookupService(helloStorage),
+          ls_uhrp: new UHRPLookupService(uhrpStorage),
           ls_ship: new SHIPLookupService(shipStorage),
           ls_slap: new SLAPLookupService(slapStorage)
         },
