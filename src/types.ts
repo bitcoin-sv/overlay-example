@@ -37,3 +37,18 @@ export interface SLAPQuery {
   domain?: string
   service?: string
 }
+
+export interface TokenQuery {
+  txid?: string
+  outputIndex?: number
+  findAll?: boolean
+}
+
+export interface TokenRecord {
+  txid: string
+  outputIndex: number
+  amount: number
+  ownerKey: string
+  assetId: string
+  createdAt: Date
+}
