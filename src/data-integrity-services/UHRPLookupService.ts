@@ -4,8 +4,6 @@ import { Script } from '@bsv/sdk'
 import pushdrop from 'pushdrop'
 import { getURLForHash, normalizeURL } from 'uhrp-url'
 import { UHRPQuery } from 'src/types.js'
-import { promises as fs } from 'fs'
-import { join } from 'path'
 import { getDocumentation } from 'src/utils/getDocumentation.js'
 
 const UHRP_URL_INDEX = 2

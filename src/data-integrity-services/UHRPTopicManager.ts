@@ -103,12 +103,10 @@ export class UHRPTopicManager implements TopicManager {
           }
 
           // Current architecture should support up to about 11 gigabyte files
-          // The bottleneck is in server-side hash calculation (the notifier.)
-          // The notifier times out after 540 seconds, and hashing takes time.
           // If this changes, the limit should be re-evaluated.
           // Content length  must be less than 100000000000
           if (contentLength > 11000000000) {
-            throw new Error(`Currently, the maximum supported file size is 11000000000 bytes:${contentLength}. Larger files will be supported in future versions, but consider breaking your file into chunks. Email nanostore-limits@babbage.systems if this causes you pain.`)
+            throw new Error(`Currently, the maximum supported file size is 11000000000 bytes:${contentLength}.`)
           }
 
           // Verify the signature
