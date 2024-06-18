@@ -3,6 +3,7 @@ import { Transaction } from '@bsv/sdk'
 import pushdrop from 'pushdrop'
 import { verifyToken } from '../utils/verifyToken.js'
 import { isValidDomain } from '../utils/isValidDomain.js'
+import { getDocumentation } from 'src/utils/getDocumentation.js'
 
 /**
  * SHIP Topic Manager
@@ -66,20 +67,7 @@ export class SHIPTopicManager implements TopicManager {
    * @returns A promise that resolves to the documentation string.
    */
   async getDocumentation(): Promise<string> {
-    return `
-    SHIP Topic Manager:
-    
-    The SHIP (Service Host Interconnect Protocol) topic manager is responsible for managing SHIP tokens within the overlay network. SHIP tokens are used to advertise the availability of service hosts and their associated topics, facilitating decentralized service discovery.
-
-    Functions:
-    - Extracts and validates SHIP token fields.
-    - Verifies the advertiser's identity using the BRC-31 identity key.
-    - Ensures correct derivation of the locking key using BRC-42 with BRC-43 formatted invoice numbers.
-    - Validates the token signature with the derived public key.
-    - Admits valid SHIP tokens into the SHIP topic for network-wide visibility.
-
-    The SHIP topic manager ensures the integrity and authenticity of service advertisements, playing a crucial role in decentralized service discovery and interconnectivity.
-  `
+    return await getDocumentation('../../../../docs/SHIP/ship-lookup-service.md')
   }
 
   /**

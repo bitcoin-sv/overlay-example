@@ -2,6 +2,7 @@ import { LookupService, LookupQuestion, LookupAnswer, LookupFormula } from '@bsv
 import { HelloWorldStorage } from './HelloWorldStorage.js'
 import { Script } from '@bsv/sdk'
 import pushdrop from 'pushdrop'
+import { getDocumentation } from 'src/utils/getDocumentation.js'
 
 /**
  * Implements an example HelloWorld lookup service
@@ -91,7 +92,7 @@ export class HelloWorldLookupService implements LookupService {
    * @returns A promise that resolves to the documentation string
    */
   async getDocumentation(): Promise<string> {
-    return 'This is the HelloWorld overlay service!'
+    return await getDocumentation('../../../../docs/HelloWorld/helloworld-lookup-service.md')
   }
 
   /**

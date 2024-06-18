@@ -9,7 +9,8 @@
     "lint": "ts-standard --fix .",
     "test": "npm run build && jest",
     "test:watch": "npm run build && jest --watch",
-    "test:coverage": "npm run build && jest --coverage"
+    "test:coverage": "npm run build && jest --coverage",
+    "generate-docs": "node ./dist/src/utils/generateDocs.js"
   },
   "author": "",
   "license": "Open BSV License",
@@ -38,6 +39,7 @@
     "ts-jest": "^29.1.4",
     "ts-node": "^10.9.2",
     "ts-standard": "^12.0.2",
+    "ts2md": "^0.2.2",
     "typescript": "^5.4.5"
   }
 }

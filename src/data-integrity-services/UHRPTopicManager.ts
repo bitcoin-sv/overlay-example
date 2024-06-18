@@ -1,6 +1,7 @@
 import { AdmittanceInstructions, TopicManager } from '@bsv/overlay'
 import { PublicKey, Signature, Transaction } from '@bsv/sdk'
 import pushdrop from 'pushdrop'
+import { getDocumentation } from 'src/utils/getDocumentation.js'
 
 // UHRP Fields Template for Reference from BRC-26
 // fields: [
@@ -143,76 +144,7 @@ export class UHRPTopicManager implements TopicManager {
    * @returns A promise that resolves to a string containing the documentation
    */
   async getDocumentation(): Promise<string> {
-    return `
-    # UHRP Topic Manager
-
-    The UHRPTopicManager is responsible for managing and verifying the Universal Hash Resolution Protocol (UHRP) advertisement tokens. It ensures that the tokens conform to the protocol specifications and facilitates the identification of admissible outputs within a transaction.
-
-    ## Methods
-
-    ### identifyAdmissibleOutputs
-
-    Identifies if the outputs are admissible depending on the particular protocol requirements.
-
-    **Parameters:**
-    - \`beef: number[]\` - The transaction data in BEEF format.
-    - \`previousCoins: number[]\` - The previous coins to consider.
-
-    **Returns:**
-    - A promise that resolves with the \`AdmittanceInstructions\`.
-
-    ### getDocumentation
-
-    Provides documentation associated with this topic manager.
-
-    **Returns:**
-    - A promise that resolves to a string containing the documentation.
-
-    ### getMetaData
-
-    Provides metadata about the topic manager.
-
-    **Returns:**
-    - A promise that resolves to an object containing metadata.
-    - Throws an error indicating the method is not implemented.
-
-    ## Usage
-
-    The UHRPTopicManager is used to manage UHRP advertisement tokens. It decodes the tokens using the PushDrop package and validates the fields according to the UHRP specification. The validation includes checking the protocol address, content hash, action type, URL format, expiry timestamp, and content length. It also verifies the digital signature to ensure the authenticity of the token.
-
-    ## Example
-
-    \`\`\`typescript
-    import { UHRPTopicManager } from './UHRPTopicManager'
-
-    // Create a new instance of UHRPTopicManager
-    const uhrpTopicManager = new UHRPTopicManager()
-
-    // Example transaction data in BEEF format
-    const beefTransaction = [...] // BEEF format data
-    const previousCoins = [...] // Previous coins
-
-    // Identify admissible outputs
-    uhrpTopicManager.identifyAdmissibleOutputs(beefTransaction, previousCoins)
-      .then(admittanceInstructions => {
-        console.log('Admissible outputs:', admittanceInstructions.outputsToAdmit)
-      })
-      .catch(error => {
-        console.error('Error identifying admissible outputs:', error)
-      })
-    \`\`\`
-
-    ## Dependencies
-
-    - \`@bsv/overlay\` for overlay network components.
-    - \`@bsv/sdk\` for Bitcoin Script handling.
-    - \`pushdrop\` for decoding BRC-48 style Pay-to-Push-Drop tokens.
-
-    ## Notes
-
-    - The PushDrop package is used to decode BRC-48 style Pay-to-Push-Drop tokens.
-    - Ensure that the UHRP advertisement tokens conform to the protocol specifications for successful validation and admittance.
-    `
+    return await getDocumentation('../../../../docs/UHRP/uhrp-lookup-service.md')
   }
 
   /**

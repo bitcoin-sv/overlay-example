@@ -3,6 +3,7 @@ import { SLAPStorage } from './SLAPStorage.js'
 import { Script } from '@bsv/sdk'
 import pushdrop from 'pushdrop'
 import { SLAPQuery } from 'src/types.js'
+import { getDocumentation } from 'src/utils/getDocumentation.js'
 
 /**
  * Implements the SLAP lookup service
@@ -94,50 +95,7 @@ export class SLAPLookupService implements LookupService {
    * @returns A promise that resolves to the documentation string.
    */
   async getDocumentation(): Promise<string> {
-    return `
-    SLAP (Service Lookup Availability Protocol) Lookup Service
-
-    Overview:
-    The SLAP Lookup Service provides mechanisms for querying the availability 
-    of various lookup services within the overlay network. This service enables 
-    users and overlay services to discover and interact with lookup services that are 
-    advertised across the network. SLAP ensures that nodes can efficiently find 
-    relevant services without needing to be aware of every node in the network.
-
-    Features:
-    - Advertise Lookup Service Availability: Nodes can advertise the availability 
-      of their lookup services using SLAP tokens.
-    - Query Service Availability: Users and other overlay services can query the SLAP 
-      service to discover available lookup services based on specific criteria.
-    - Federated Discovery: SLAP facilitates a federated approach to 
-      service discovery, enhancing the resilience and scalability of the overlay network.
-
-    Implementation Details:
-    - The SLAP service uses BRC-48 style Pay-to-Push-Drop tokens to encode and 
-      advertise service availability.
-    - Each SLAP token contains the following fields: 
-      1. SLAP Identifier (must be "SLAP")
-      2. Identity Key of the advertising node
-      3. Domain Name of the service provider
-      4. Service Name being advertised
-    - The SLAP lookup service stores these tokens and allows querying based 
-      on the domain name and service name.
-
-    Usage:
-    - Nodes can use the SLAP Topic Manager to handle the creation and validation 
-      of SLAP tokens.
-    - The SLAP Lookup Service can be queried to find available lookup services 
-      using the findByServiceNameForSLAP method.
-
-    Example:
-    To advertise a new lookup service, a node creates a SLAP token with the relevant 
-    details and submits it to the overlay network. Other overlay services or users can 
-    then query the SLAP service to discover this newly advertised service.
-
-    This service is a crucial component of the overlay network's peer discovery 
-    and service availability mechanisms, ensuring efficient and scalable 
-    interactions within the network.
-  `
+    return await getDocumentation('../../../../docs/SHIP/ship-lookup-service.md')
   }
 
   /**

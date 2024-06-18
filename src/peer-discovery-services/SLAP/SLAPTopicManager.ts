@@ -4,6 +4,7 @@ import pushdrop from 'pushdrop'
 import { verifyToken } from '../utils/verifyToken.js'
 import { isValidDomain } from '../utils/isValidDomain.js'
 import { isValidServiceName } from '../utils/isValidServiceName.js'
+import { getDocumentation } from 'src/utils/getDocumentation.js'
 
 /**
  * SLAP Topic Manager
@@ -66,20 +67,7 @@ export class SLAPTopicManager implements TopicManager {
    * @returns A promise that resolves to the documentation string.
    */
   async getDocumentation(): Promise<string> {
-    return `
-    SLAP Topic Manager:
-    
-    The SLAP (Service Lookup Availability Protocol) topic manager is responsible for managing SLAP tokens within the overlay network. SLAP tokens are used to advertise the availability of lookup services and their associated domains, facilitating decentralized service discovery.
-
-    Functions:
-    - Extracts and validates SLAP token fields.
-    - Verifies the advertiser's identity using the BRC-31 identity key.
-    - Ensures correct derivation of the locking key using BRC-42 with BRC-43 formatted invoice numbers.
-    - Validates the token signature with the derived public key.
-    - Admits valid SLAP tokens into the SLAP topic for network-wide visibility.
-
-    The SLAP topic manager ensures the integrity and authenticity of lookup service advertisements, playing a crucial role in decentralized service discovery and interconnectivity.
-  `
+    return await getDocumentation('../../../../docs/SLAP/slap-lookup-service.md')
   }
 
   /**

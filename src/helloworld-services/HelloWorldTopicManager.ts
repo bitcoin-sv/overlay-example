@@ -1,6 +1,7 @@
 import { AdmittanceInstructions, TopicManager } from '@bsv/overlay'
 import { PublicKey, Signature, Transaction } from '@bsv/sdk'
 import pushdrop from 'pushdrop'
+import { getDocumentation } from 'src/utils/getDocumentation.js'
 
 /**
  *  Note: The PushDrop package is used to decode BRC-48 style Pay-to-Push-Drop tokens.
@@ -66,7 +67,7 @@ export class HelloWorldTopicManager implements TopicManager {
    * @returns A promise that resolves to a string containing the documentation
    */
   async getDocumentation(): Promise<string> {
-    return 'This is a HelloWorld topic manager!'
+    return await getDocumentation('../../../../docs/HelloWorld/helloworld-lookup-service.md')
   }
 
   /**

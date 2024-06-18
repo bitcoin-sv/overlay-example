@@ -5,6 +5,7 @@ dotenv.config()
 
 /**
  * Verifies the BRC-48 locking key and the signature.
+ * @private
  * @param identityKey - The BRC-31 identity key of the advertiser.
  * @param lockingPublicKey - The public key used in the output's locking script.
  * @param fields - The fields of the token.
