@@ -54,15 +54,31 @@ DB_NAME='staging_helloworld_lookupService'
 TAAL_API_KEY='example_key_xyz'
 ```
 
-4. Start your MySQL instance and run the database migrations:
+4. Start your MySQL instance, and create a new database/user
+```
+-- Log in to your MySQL server
+mysql -u root -p
 
-`knex migrate:latest`
+-- Create a new database
+CREATE DATABASE overlay;
 
-5. Start your MongoDB instance and ensure your connection string works.
-6. Start the local Express server:
+-- Create a new user and grant all privileges on the new database
+CREATE USER 'overlayAdmin'@'localhost' IDENTIFIED BY 'overlay123';
+GRANT ALL PRIVILEGES ON overlay.* TO 'overlayAdmin'@'localhost';
+
+-- Apply the privilege changes
+FLUSH PRIVILEGES;
+```
+
+5. Run the database migrations
+
+`npm run migrate`
+
+6. Start your MongoDB instance and ensure your connection string works.
+7. Start the local Express server:
 `npm run start`
 
-7. Ensure you have the stageline MetaNet Client running, which is required for this example.
+8. Ensure you have the stageline MetaNet Client running, which is required for this example.
 
 You should now be ready to run the integration tests and start developing with the Overlay Services Engine.
 

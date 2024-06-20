@@ -10,7 +10,9 @@
     "test": "npm run build && jest",
     "test:watch": "npm run build && jest --watch",
     "test:coverage": "npm run build && jest --coverage",
-    "generate-docs": "node ./dist/src/utils/generateDocs.js"
+    "generate-docs": "node ./dist/src/utils/generateDocs.js",
+    "migrate": "NODE_OPTIONS='--loader ts-node/esm' knex migrate:latest",
+    "rollback": "NODE_OPTIONS='--loader ts-node/esm' knex migrate:rollback"
   },
   "author": "",
   "license": "Open BSV License",

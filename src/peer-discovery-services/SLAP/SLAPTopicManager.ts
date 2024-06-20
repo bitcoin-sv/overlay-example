@@ -4,7 +4,7 @@ import pushdrop from 'pushdrop'
 import { verifyToken } from '../utils/verifyToken.js'
 import { isValidDomain } from '../utils/isValidDomain.js'
 import { isValidServiceName } from '../utils/isValidServiceName.js'
-import { getDocumentation } from 'src/utils/getDocumentation.js'
+import { getDocumentation } from '../../utils/getDocumentation.js'
 
 /**
  * SLAP Topic Manager

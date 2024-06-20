@@ -3,7 +3,7 @@ import { SHIPStorage } from './SHIPStorage.js'
 import { Script } from '@bsv/sdk'
 import pushdrop from 'pushdrop'
 import { SHIPQuery } from 'src/types.js'
-import { getDocumentation } from 'src/utils/getDocumentation.js'
+import { getDocumentation } from '../../utils/getDocumentation.js'
 
 /**
  * Implements the SHIP lookup service

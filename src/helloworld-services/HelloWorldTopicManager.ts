@@ -1,7 +1,7 @@
 import { AdmittanceInstructions, TopicManager } from '@bsv/overlay'
 import { PublicKey, Signature, Transaction } from '@bsv/sdk'
 import pushdrop from 'pushdrop'
-import { getDocumentation } from 'src/utils/getDocumentation.js'
+import { getDocumentation } from '../utils/getDocumentation.js'
 
 /**
  *  Note: The PushDrop package is used to decode BRC-48 style Pay-to-Push-Drop tokens.

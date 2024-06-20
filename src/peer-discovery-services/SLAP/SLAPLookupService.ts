@@ -3,7 +3,7 @@ import { SLAPStorage } from './SLAPStorage.js'
 import { Script } from '@bsv/sdk'
 import pushdrop from 'pushdrop'
 import { SLAPQuery } from 'src/types.js'
-import { getDocumentation } from 'src/utils/getDocumentation.js'
+import { getDocumentation } from '../../utils/getDocumentation.js'
 
 /**
  * Implements the SLAP lookup service

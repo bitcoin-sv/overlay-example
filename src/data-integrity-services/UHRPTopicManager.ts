@@ -1,7 +1,7 @@
 import { AdmittanceInstructions, TopicManager } from '@bsv/overlay'
 import { PublicKey, Signature, Transaction } from '@bsv/sdk'
 import pushdrop from 'pushdrop'
-import { getDocumentation } from 'src/utils/getDocumentation.js'
+import { getDocumentation } from '../utils/getDocumentation.js'
 
 // UHRP Fields Template for Reference from BRC-26
 // fields: [

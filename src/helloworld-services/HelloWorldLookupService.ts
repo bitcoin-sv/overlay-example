@@ -2,7 +2,7 @@ import { LookupService, LookupQuestion, LookupAnswer, LookupFormula } from '@bsv
 import { HelloWorldStorage } from './HelloWorldStorage.js'
 import { Script } from '@bsv/sdk'
 import pushdrop from 'pushdrop'
-import { getDocumentation } from 'src/utils/getDocumentation.js'
+import { getDocumentation } from '../utils/getDocumentation.js'
 
 /**
  * Implements an example HelloWorld lookup service

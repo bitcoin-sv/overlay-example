@@ -23,39 +23,39 @@ const docs: DocConfig[] = [
     output: './docs/HelloWorld/helloworld-storage.md'
   },
   {
-    input: './src/ship-services/SHIPTopicManager.ts',
+    input: './src/peer-discovery-services/SHIP/SHIPTopicManager.ts',
     output: './docs/SHIP/ship-topic-manager.md'
   },
   {
-    input: './src/ship-services/SHIPLookupService.ts',
+    input: './src/peer-discovery-services/SHIP/SHIPLookupService.ts',
     output: './docs/SHIP/ship-lookup-service.md'
   },
   {
-    input: './src/ship-services/SHIPStorage.ts',
+    input: './src/peer-discovery-services/SHIP/SHIPStorage.ts',
     output: './docs/SHIP/ship-storage.md'
   },
   {
-    input: './src/slap-services/SLAPTopicManager.ts',
+    input: './src/peer-discovery-services/SLAP/SLAPTopicManager.ts',
     output: './docs/SLAP/slap-topic-manager.md'
   },
   {
-    input: './src/slap-services/SLAPLookupService.ts',
+    input: './src/peer-discovery-services/SLAP/SLAPLookupService.ts',
     output: './docs/SLAP/slap-lookup-service.md'
   },
   {
-    input: './src/slap-services/SLAPStorage.ts',
+    input: './src/peer-discovery-services/SLAP/SLAPStorage.ts',
     output: './docs/SLAP/slap-storage.md'
   },
   {
-    input: './src/uhrp-services/UHRPTopicManager.ts',
+    input: './src/data-integrity-services/UHRPTopicManager.ts',
     output: './docs/UHRP/uhrp-topic-manager.md'
   },
   {
-    input: './src/uhrp-services/UHRPLookupService.ts',
+    input: './src/data-integrity-services/UHRPLookupService.ts',
     output: './docs/UHRP/uhrp-lookup-service.md'
   },
   {
-    input: './src/uhrp-services/UHRPStorage.ts',
+    input: './src/data-integrity-services/UHRPStorage.ts',
     output: './docs/UHRP/uhrp-storage.md'
   }
 ]
