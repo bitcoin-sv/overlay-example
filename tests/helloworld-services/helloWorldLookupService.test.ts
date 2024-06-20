@@ -1,5 +1,5 @@
-import { HelloWorldLookupService } from '../src/helloworld-services/HelloWorldLookupService'
-import { HelloWorldStorage } from '../src/helloworld-services/HelloWorldStorage'
+import { HelloWorldLookupService } from '../../src/helloworld-services/HelloWorldLookupService'
+import { HelloWorldStorage } from '../../src/helloworld-services/HelloWorldStorage'
 import { LookupQuestion } from '@bsv/overlay'
 import { MongoClient, Db } from 'mongodb'
 
@@ -21,7 +21,7 @@ const DB_NAME = 'testDB'
 const mockDeleteRecord = jest.fn()
 const mockFindByMessage = jest.fn()
 
-jest.mock('../src/helloworld-services/HelloWorldStorage', () => {
+jest.mock('../../src/helloworld-services/HelloWorldStorage', () => {
   return {
     HelloWorldStorage: jest.fn().mockImplementation(() => {
       return {

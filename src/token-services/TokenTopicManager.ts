@@ -10,7 +10,7 @@ export class TokenTopicManager implements TopicManager {
   /**
    * Identifies admissible outputs from a given transaction based on previous UTXOs.
    * @param beef - The transaction data in BEEF format
-   * @param previousCoins - The previous coins to consider
+   * @param previousCoins - The previous coins to consider given as input indexes of the current transaction
    * @returns {Promise<AdmittanceInstructions>} A promise that resolves with the admittance instructions
    */
   async identifyAdmissibleOutputs(beef: number[], previousCoins: number[]): Promise<AdmittanceInstructions> {
@@ -110,7 +110,7 @@ export class TokenTopicManager implements TopicManager {
           })
 
           if (assetInOutputs) {
-            coinsToRetain.push(input.sourceOutputIndex)
+            coinsToRetain.push(inputIndex)
           }
         }
       }

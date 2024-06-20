@@ -1,5 +1,5 @@
 import { Db, Collection } from 'mongodb'
-import { HelloWorldStorage } from '../src/helloworld-services/HelloWorldStorage'
+import { HelloWorldStorage } from '../../src/helloworld-services/HelloWorldStorage'
 import { HelloWorldRecord } from '../src/helloworld-services/types'
 
 describe('HelloWorldStorage', () => {
