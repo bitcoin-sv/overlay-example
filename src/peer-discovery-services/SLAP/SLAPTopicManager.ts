@@ -44,7 +44,7 @@ export class SLAPTopicManager implements TopicManager {
           if (!isValidServiceName(service)) continue
 
           // Verify the token locking key and signature
-          verifyToken(identityKey, result.lockingPublicKey, result.fields, result.signature, 'SLAP')
+          verifyToken(identityKey, result.lockingPublicKey, result.fields, result.signature)
 
           outputsToAdmit.push(i)
         } catch (error) {
