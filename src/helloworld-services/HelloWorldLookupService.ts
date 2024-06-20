@@ -83,6 +83,10 @@ export class HelloWorldLookupService implements LookupService {
       throw new Error('Lookup service not supported!')
     }
 
+    if (question.query === 'findAll') {
+      return await this.storage.findAll()
+    }
+
     // Simple example which does a query by the message
     return await this.storage.findByMessage(question.query as string)
   }

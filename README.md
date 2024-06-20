@@ -20,13 +20,8 @@ The Overlay Services Engine enables dynamic tracking and management of UTXO-base
 
 ### Prerequisites
 
-Ensure you have the following installed:
+Ensure Node.js, MySQL, and MongoDB are installed on your machine. MongoDB and MySQL should be running as services either locally or on a server you have access to.
 
-- Node.js
-- MySQL
-- MongoDB
-
-Make sure MySQL and MongoDB are running as services on your machine, or on a remote server you have access to.
 
 ### Installation
 
@@ -47,15 +42,20 @@ npm install
 PORT=8080
 NODE_ENV='development'
 HOSTING_DOMAIN="http://localhost:8080"
-SERVER_PRIVATE_KEY='your_private_key'
-MIGRATE_KEY="your_migration_key"
-DB_CONNECTION='your_mongodb_connection_string'
-DB_NAME='staging_helloworld_lookupService'
-TAAL_API_KEY='example_key_xyz'
+ROUTING_PREFIX=""
+SERVER_PRIVATE_KEY='your_private_key_with_funds'
+MIGRATE_KEY="my-grate-key"
+DB_CONNECTION='mongodb://localhost:27017'
+TAAL_API_KEY='testnet_your_key_here'
+DOJO_URL='https://staging-dojo.babbage.systems' # Staging Dojo configured for testnet
 ```
+Adjust DB_CONNECTION as necessary if your MongoDB instance has specific user credentials or is hosted remotely.
 
-4. Start your MySQL instance, and create a new database/user
-```
+4. Set Up MySQL:
+
+Start your MySQL instance and set up a new database and user:
+
+```sql
 -- Log in to your MySQL server
 mysql -u root -p
 
@@ -70,15 +70,38 @@ GRANT ALL PRIVILEGES ON overlay.* TO 'overlayAdmin'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
-5. Run the database migrations
+5. Database Migrations:
 
-`npm run migrate`
+Apply database migrations for MySQL using:
+
+```
+npm run migrate
+```
 
 6. Start your MongoDB instance and ensure your connection string works.
-7. Start the local Express server:
-`npm run start`
 
-8. Ensure you have the stageline MetaNet Client running, which is required for this example.
+- **For macOS and Linux Users (Using Homebrew):**
+
+  - If MongoDB is installed via Homebrew, start it as a service with the following command:
+```bash
+brew services start mongodb-community
+```
+
+- **For Windows Users**
+
+If MongoDB is installed as a service, start it from the Services management console, or use the command prompt:
+```cmd
+net start MongoDB
+```
+
+7. Start the local Express server:
+```
+npm run start
+```
+
+
+8. Ensure you have the stageline (for testnet) or mainline (for mainnet) MetaNet Client running, which is required for this example.
+https://projectbabbage.com/metanet-client
 
 You should now be ready to run the integration tests and start developing with the Overlay Services Engine.
 
