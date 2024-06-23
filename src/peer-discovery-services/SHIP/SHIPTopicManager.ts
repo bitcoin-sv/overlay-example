@@ -44,7 +44,7 @@ export class SHIPTopicManager implements TopicManager {
           // if (!isValidTopicName(topic)) continue
 
           // Verify the token locking key and signature
-          verifyToken(identityKey, result.lockingPublicKey, result.fields, result.signature, 'SHIP')
+          verifyToken(identityKey, result.lockingPublicKey, result.fields, result.signature)
 
           outputsToAdmit.push(i)
         } catch (error) {
