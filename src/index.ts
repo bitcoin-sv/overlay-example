@@ -1,7 +1,7 @@
 import dotenv from 'dotenv'
 import express from 'express'
 import bodyparser from 'body-parser'
-import { Engine, KnexStorage, TaggedBEEF } from '@bsv/overlay'
+import { Engine, KnexStorage, STEAK, TaggedBEEF } from '@bsv/overlay'
 import { WhatsOnChain, NodejsHttpClient, ARC, ArcConfig, MerklePath } from '@bsv/sdk'
 import { MongoClient } from 'mongodb'
 import https from 'https'
@@ -223,9 +223,12 @@ app.post('/submit', (req, res) => {
         topics
       }
 
-      const steak = await engine.submit(taggedBEEF)
+      // Using a callback function, we can just return once our steak is ready
+      // instead of having to wait for all the broadcasts to occur.
+      await engine.submit(taggedBEEF, (steak: STEAK) => {
+        return res.status(200).json(steak)
+      })
 
-      return res.status(200).json(steak)
     } catch (error) {
       console.error(error)
       return res.status(400).json({
