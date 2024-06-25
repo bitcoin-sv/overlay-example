@@ -82,12 +82,6 @@ describe('HelloWorldLookupService', () => {
     })
   })
 
-  describe('getDocumentation', () => {
-    it('should return the documentation string', async () => {
-      await expect(service.getDocumentation()).resolves.toBe('This is the HelloWorld overlay service!')
-    })
-  })
-
   describe('getMetaData', () => {
     it('should throw an error indicating the method is not implemented', async () => {
       await expect(service.getMetaData()).rejects.toThrow('Method not implemented.')

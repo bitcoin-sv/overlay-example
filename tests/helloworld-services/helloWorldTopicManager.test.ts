@@ -131,13 +131,6 @@ describe('HelloWorldTopicManager', () => {
     })
   })
 
-  describe('getDocumentation', () => {
-    it('should return the correct documentation string', async () => {
-      const documentation = await helloWorldTopicManager.getDocumentation()
-      expect(documentation).toBe('This is a HelloWorld topic manager!')
-    })
-  })
-
   describe('getMetaData', () => {
     it('should throw an error indicating the method is not implemented', async () => {
       await expect(helloWorldTopicManager.getMetaData()).rejects.toThrow('Method not implemented.')

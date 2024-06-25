@@ -67,7 +67,7 @@ export class HelloWorldTopicManager implements TopicManager {
    * @returns A promise that resolves to a string containing the documentation
    */
   async getDocumentation(): Promise<string> {
-    return await getDocumentation('../../docs/HelloWorld/helloworld-lookup-service.md')
+    return await getDocumentation('./docs/HelloWorld/helloworld-lookup-service.md')
   }
 
   /**

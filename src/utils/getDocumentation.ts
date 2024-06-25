@@ -1,19 +1,14 @@
 import { promises as fs } from 'fs'
-import { dirname, join } from 'path'
-import { fileURLToPath } from 'url'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
-
+import { resolve } from 'path'
 /**
  * Returns documentation specific to the provided filename
- * @param {string} filename - The name of the markdown file
+ * @param {string} filePath - The path of the markdown file
  * @returns A promise that resolves to the documentation string
  */
-async function getDocumentation(filename: string): Promise<string> {
-  const filePath = join(__dirname, filename)
+async function getDocumentation(filePath: string): Promise<string> {
   try {
-    const data = await fs.readFile(filePath, 'utf-8')
+    const resolvedPath = resolve(process.cwd(), filePath)
+    const data = await fs.readFile(resolvedPath, 'utf-8')
     return data
   } catch (error) {
     console.error('Error reading documentation file:', error)

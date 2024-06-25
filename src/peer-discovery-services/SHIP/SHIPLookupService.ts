@@ -96,7 +96,7 @@ export class SHIPLookupService implements LookupService {
    * @returns A promise that resolves to the documentation string.
    */
   async getDocumentation(): Promise<string> {
-    return await getDocumentation('../../docs/SHIP/ship-lookup-service.md')
+    return await getDocumentation('./docs/SHIP/ship-lookup-service.md')
   }
 
   /**

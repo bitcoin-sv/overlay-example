@@ -141,7 +141,7 @@ export class UHRPTopicManager implements TopicManager {
    * @returns A promise that resolves to a string containing the documentation
    */
   async getDocumentation(): Promise<string> {
-    return await getDocumentation('../../docs/UHRP/uhrp-lookup-service.md')
+    return await getDocumentation('./docs/UHRP/uhrp-lookup-service.md')
   }
 
   /**
