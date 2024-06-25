@@ -40,7 +40,7 @@ export class UHRPTopicManager implements TopicManager {
             fieldFormat: 'buffer'
           })
 
-          if (result.fields.length !== 6) {
+          if (result.fields.length !== 7) {
             throw new Error('This transaction output does not conform to the UHRP!')
           }
 
@@ -55,7 +55,7 @@ export class UHRPTopicManager implements TopicManager {
             throw new Error(`Invalid hash length, must be 32 bytes but this value is ${hashBuf.byteLength}`)
           }
 
-          if (result.fields[3].toString('utf8') !== 'advertise' || result.fields[3].toString('utf8') !== 'revoke') {
+          if (result.fields[3].toString('utf8') !== 'advertise' && result.fields[3].toString('utf8') !== 'revoke') {
             throw new Error('Identifies this token as a UHRP advertisement or revocation.')
           }
 
@@ -119,12 +119,11 @@ export class UHRPTopicManager implements TopicManager {
           if (!hasValidSignature) throw new Error('Invalid signature!')
           outputsToAdmit.push(i)
         } catch (error) {
-          console.error('Error processing output:', error)
-          // Continue processing other outputs
+          // Continue processing other outputs which may be valid
         }
       }
       if (outputsToAdmit.length === 0) {
-        console.warn('No outputs admitted!')
+        console.log('No outputs admitted!')
       }
     } catch (error) {
       console.error('Error identifying admissible outputs:', error)

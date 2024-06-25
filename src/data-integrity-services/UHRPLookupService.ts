@@ -34,7 +34,7 @@ export class UHRPLookupService implements LookupService {
    * @returns {Promise<void>} A promise that resolves when the processing is complete.
    * @throws Will throw an error if there is an issue with storing the record in the storage engine.
    */
-  async outputAdded?(txid: string, outputIndex: number, outputScript: Script, topic: string): Promise<void> {
+  async outputAdded(txid: string, outputIndex: number, outputScript: Script, topic: string): Promise<void> {
     if (topic !== 'tm_uhrp') return
     // Decode the UHRP token fields from the Bitcoin outputScript
     const result = pushdrop.decode({
@@ -62,7 +62,7 @@ export class UHRPLookupService implements LookupService {
    * @param outputIndex - The index of the spent output
    * @param topic - The topic associated with the spent output
    */
-  async outputSpent?(txid: string, outputIndex: number, topic: string): Promise<void> {
+  async outputSpent(txid: string, outputIndex: number, topic: string): Promise<void> {
     if (topic !== 'tm_uhrp') return
     await this.storage.deleteRecord(txid, outputIndex)
   }
@@ -73,7 +73,7 @@ export class UHRPLookupService implements LookupService {
    * @param outputIndex - The index of the deleted output
    * @param topic - The topic associated with the deleted output
    */
-  async outputDeleted?(txid: string, outputIndex: number, topic: string): Promise<void> {
+  async outputDeleted(txid: string, outputIndex: number, topic: string): Promise<void> {
     if (topic !== 'tm_uhrp') return
     await this.storage.deleteRecord(txid, outputIndex)
   }
