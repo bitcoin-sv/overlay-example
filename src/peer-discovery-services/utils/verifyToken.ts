@@ -1,10 +1,10 @@
 import { PublicKey, Signature } from '@bsv/sdk'
-import { getPaymentAddress } from 'sendover'
 import dotenv from 'dotenv'
 dotenv.config()
 
 /**
  * Verifies the BRC-48 locking key and the signature.
+ * @private
  * @param identityKey - The BRC-31 identity key of the advertiser.
  * @param lockingPublicKey - The public key used in the output's locking script.
  * @param fields - The fields of the token.
@@ -16,20 +16,8 @@ export const verifyToken = (
   identityKey: string,
   lockingPublicKey: string,
   fields: Buffer[],
-  signature: string,
-  protocolId: string
+  signature: string
 ): void => {
-  const expectedPublicKey = getPaymentAddress({
-    senderPrivateKey: process.env.SERVER_PRIVATE_KEY,
-    recipientPublicKey: identityKey,
-    invoiceNumber: `2-${protocolId}-1`, // BRC-43 formatted invoice number
-    returnType: 'publicKey'
-  })
-
-  if (expectedPublicKey !== lockingPublicKey) {
-    throw new Error('Invalid locking key!')
-  }
-
   const pubKey = PublicKey.fromString(lockingPublicKey)
   const hasValidSignature = pubKey.verify(
     Array.from(Buffer.concat(fields)),

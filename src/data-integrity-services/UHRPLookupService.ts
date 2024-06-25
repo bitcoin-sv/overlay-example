@@ -1,22 +1,27 @@
 import { LookupService, LookupQuestion, LookupAnswer, LookupFormula } from '@bsv/overlay'
-import { HelloWorldStorage } from './HelloWorldStorage.js'
+import { UHRPStorage } from './UHRPStorage.js'
 import { Script } from '@bsv/sdk'
 import pushdrop from 'pushdrop'
+import { getURLForHash, normalizeURL } from 'uhrp-url'
+import { UHRPQuery } from 'src/types.js'
 import { getDocumentation } from '../utils/getDocumentation.js'
 
+const UHRP_URL_INDEX = 2
+const EXPIRY_TIME_INDEX = 5
+
 /**
- * Implements an example HelloWorld lookup service
+ * Implements an example UHRP lookup service
  *
  * Note: The PushDrop package is used to decode BRC-48 style Pay-to-Push-Drop tokens.
  *
  * @public
  */
-export class HelloWorldLookupService implements LookupService {
+export class UHRPLookupService implements LookupService {
   /**
-   * Constructs a new HelloWorldLookupService instance
+   * Constructs a new UHRPLookupService instance
    * @param storage - The storage instance to use for managing records
    */
-  constructor(public storage: HelloWorldStorage) { }
+  constructor(public storage: UHRPStorage) { }
 
   /**
    * Notifies the lookup service of a new output added.
@@ -29,22 +34,25 @@ export class HelloWorldLookupService implements LookupService {
    * @returns {Promise<void>} A promise that resolves when the processing is complete.
    * @throws Will throw an error if there is an issue with storing the record in the storage engine.
    */
-  async outputAdded?(txid: string, outputIndex: number, outputScript: Script, topic: string): Promise<void> {
-    if (topic !== 'tm_helloworld') return
-    // Decode the HelloWorld token fields from the Bitcoin outputScript
+  async outputAdded(txid: string, outputIndex: number, outputScript: Script, topic: string): Promise<void> {
+    if (topic !== 'tm_uhrp') return
+    // Decode the UHRP token fields from the Bitcoin outputScript
     const result = pushdrop.decode({
       script: outputScript.toHex(),
       fieldFormat: 'buffer'
     })
 
-    // Parse out the message field
-    const helloMessage = result.fields[0].toString('utf8')
+    // UHRP Fields to store
+    // Note: UHRPUrl is converted to a Base58 encoded string
+    const UHRPUrl = getURLForHash(result.fields[UHRP_URL_INDEX])
+    const retentionPeriod = result.fields[EXPIRY_TIME_INDEX].toString('utf8')
 
     // Store the token fields for future lookup
     await this.storage.storeRecord(
       txid,
       outputIndex,
-      helloMessage
+      UHRPUrl,
+      retentionPeriod
     )
   }
 
@@ -54,8 +62,8 @@ export class HelloWorldLookupService implements LookupService {
    * @param outputIndex - The index of the spent output
    * @param topic - The topic associated with the spent output
    */
-  async outputSpent?(txid: string, outputIndex: number, topic: string): Promise<void> {
-    if (topic !== 'tm_helloworld') return
+  async outputSpent(txid: string, outputIndex: number, topic: string): Promise<void> {
+    if (topic !== 'tm_uhrp') return
     await this.storage.deleteRecord(txid, outputIndex)
   }
 
@@ -65,8 +73,8 @@ export class HelloWorldLookupService implements LookupService {
    * @param outputIndex - The index of the deleted output
    * @param topic - The topic associated with the deleted output
    */
-  async outputDeleted?(txid: string, outputIndex: number, topic: string): Promise<void> {
-    if (topic !== 'tm_helloworld') return
+  async outputDeleted(txid: string, outputIndex: number, topic: string): Promise<void> {
+    if (topic !== 'tm_uhrp') return
     await this.storage.deleteRecord(txid, outputIndex)
   }
 
@@ -79,16 +87,20 @@ export class HelloWorldLookupService implements LookupService {
     if (question.query === undefined || question.query === null) {
       throw new Error('A valid query must be provided!')
     }
-    if (question.service !== 'ls_helloworld') {
+    if (question.service !== 'ls_uhrp') {
       throw new Error('Lookup service not supported!')
     }
 
-    if (question.query === 'findAll') {
-      return await this.storage.findAll()
-    }
+    const { UHRPUrl, retentionPeriod } = question.query as UHRPQuery
 
-    // Simple example which does a query by the message
-    return await this.storage.findByMessage(question.query as string)
+    if (UHRPUrl !== undefined) {
+      const normalizedUHRPUrl = normalizeURL(UHRPUrl)
+      return await this.storage.findByUHRPUrl(normalizedUHRPUrl)
+    } else if (retentionPeriod !== undefined) {
+      return await this.storage.findByRetentionPeriod(retentionPeriod)
+    } else {
+      throw new Error('Query parameters must include UHRPUrl or retentionPeriod!')
+    }
   }
 
   /**
@@ -96,7 +108,7 @@ export class HelloWorldLookupService implements LookupService {
    * @returns A promise that resolves to the documentation string
    */
   async getDocumentation(): Promise<string> {
-    return await getDocumentation('../../docs/HelloWorld/helloworld-lookup-service.md')
+    return await getDocumentation('../../docs/UHRP/uhrp-lookup-service.md')
   }
 
   /**

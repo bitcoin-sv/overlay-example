@@ -5,6 +5,14 @@ export interface HelloWorldRecord {
   createdAt: Date
 }
 
+export interface UHRPRecord {
+  txid: string
+  outputIndex: number
+  uhrpURL: string
+  retentionPeriod: number
+  createdAt: Date
+}
+
 export interface UTXOReference {
   txid: string
   outputIndex: number
@@ -51,4 +59,9 @@ export interface TokenRecord {
   ownerKey: string
   assetId: string
   createdAt: Date
+}
+
+export interface UHRPQuery {
+  UHRPUrl?: string
+  retentionPeriod?: number
 }

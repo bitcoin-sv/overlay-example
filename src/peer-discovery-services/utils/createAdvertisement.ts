@@ -7,6 +7,7 @@ import { PrivateKey, PublicKey } from '@bsv/sdk'
 
 /**
  * Utility function to create an advertisement.
+ * @private
  * @returns A promise that resolves to a TaggedBEEF object.
  * @throws Will throw an error if the locking key is invalid.
  */

@@ -3,6 +3,7 @@ import { SHIPStorage } from './SHIPStorage.js'
 import { Script } from '@bsv/sdk'
 import pushdrop from 'pushdrop'
 import { SHIPQuery } from 'src/types.js'
+import { getDocumentation } from '../../utils/getDocumentation.js'
 
 /**
  * Implements the SHIP lookup service
@@ -95,28 +96,7 @@ export class SHIPLookupService implements LookupService {
    * @returns A promise that resolves to the documentation string.
    */
   async getDocumentation(): Promise<string> {
-    return `The SHIP (Service Host Interconnect Protocol) lookup service allows overlay services
-    to advertise their hosting of specific topics within the overlay network.
-    This service helps in the discovery of services that host specific topics,
-    enabling efficient synchronization and communication across the overlay network.
-
-    Key functionalities of the SHIP lookup service include:
-    - Output Addition: When a new output is added to the SHIP topic, the service
-      processes the output script to decode and validate the SHIP token fields. 
-      The fields include the SHIP identifier, the identity key of the advertiser,
-      the domain name of the service host, and the topic name being hosted.
-    - Output Removal: Handles the removal of outputs from the SHIP topic by 
-      deleting the corresponding records from the storage.
-    - Querying Advertisements: Allows querying of the SHIP service to discover
-      services hosting specific topics. This is crucial for peer discovery and network
-      robustness.
-    - Validation: Ensures the authenticity of the advertisements by validating
-      the BRC-48 locking key and the signature using the identity key and derived
-      public key.
-
-    The SHIP lookup service is compliant with the BRC-23 standard, ensuring that
-    the advertisements and peer discovery mechanisms adhere to the defined protocols
-    and security requirements.`
+    return await getDocumentation('../../docs/SHIP/ship-lookup-service.md')
   }
 
   /**
