@@ -1,7 +1,7 @@
 import dotenv from 'dotenv'
 import express from 'express'
 import bodyparser from 'body-parser'
-import { Engine, KnexStorage, TaggedBEEF } from '@bsv/overlay'
+import { Engine, KnexStorage, STEAK, TaggedBEEF } from '@bsv/overlay'
 import { WhatsOnChain, NodejsHttpClient, ARC, ArcConfig, MerklePath } from '@bsv/sdk'
 import { MongoClient } from 'mongodb'
 import https from 'https'
@@ -18,6 +18,9 @@ import { NinjaAdvertiser } from './peer-discovery-services/NinjaAdvertiser.js'
 import { Advertiser } from '@bsv/overlay/Advertiser.ts'
 import { SHIPTopicManager } from './peer-discovery-services/SHIP/SHIPTopicManager.js'
 import { SLAPTopicManager } from './peer-discovery-services/SLAP/SLAPTopicManager.js'
+import { UHRPStorage } from './data-integrity-services/UHRPStorage.js'
+import { UHRPTopicManager } from './data-integrity-services/UHRPTopicManager.js'
+import { UHRPLookupService } from './data-integrity-services/UHRPLookupService.js'
 
 const knex = Knex(knexfile.development)
 const app = express()
@@ -29,7 +32,6 @@ app.use(bodyparser.raw({ limit: '1gb', type: 'application/octet-stream' }))
 const {
   PORT,
   DB_CONNECTION,
-  DB_NAME,
   NODE_ENV,
   HOSTING_DOMAIN,
   TAAL_API_KEY,
@@ -37,8 +39,8 @@ const {
   DOJO_URL
 } = process.env
 
-const SLAP_TRACKERS = ['https://overlay.babbage.systems']
-const SHIP_TRACKERS = ['https://overlay.babbage.systems']
+const SLAP_TRACKERS = [`https://${NODE_ENV === 'production' ? '' : 'staging-'}overlay.babbage.systems`]
+const SHIP_TRACKERS = [`https://${NODE_ENV === 'production' ? '' : 'staging-'}overlay.babbage.systems`]
 
 // Initialization the overlay engine
 let engine: Engine
@@ -67,6 +69,7 @@ const initialization = async () => {
 
       // Create storage instances
       const helloStorage = new HelloWorldStorage(mongoClient.db(`${NODE_ENV as string}_helloworld_lookupService`))
+      const uhrpStorage = new UHRPStorage(mongoClient.db(`${NODE_ENV as string}_uhrp_lookupService`))
       const shipStorage = new SHIPStorage(mongoClient.db(`${NODE_ENV as string}_ship_lookupService`))
       const slapStorage = new SLAPStorage(mongoClient.db(`${NODE_ENV as string}_slap_lookupService`))
 
@@ -79,11 +82,13 @@ const initialization = async () => {
       engine = new Engine(
         {
           tm_helloworld: new HelloWorldTopicManager(),
+          tm_uhrp: new UHRPTopicManager(),
           tm_ship: new SHIPTopicManager(),
           tm_slap: new SLAPTopicManager()
         },
         {
           ls_helloworld: new HelloWorldLookupService(helloStorage),
+          ls_uhrp: new UHRPLookupService(uhrpStorage),
           ls_ship: new SHIPLookupService(shipStorage),
           ls_slap: new SLAPLookupService(slapStorage)
         },
@@ -172,7 +177,8 @@ app.get('/getDocumentationForTopicManager', (req, res) => {
   (async () => {
     try {
       const result = await engine.getDocumentationForTopicManager(req.query.manager)
-      return res.status(200).json(result)
+      res.setHeader('Content-Type', 'text/markdown')
+      return res.status(200).send(result)
     } catch (error) {
       return res.status(400).json({
         status: 'error',
@@ -217,9 +223,12 @@ app.post('/submit', (req, res) => {
         topics
       }
 
-      const steak = await engine.submit(taggedBEEF)
+      // Using a callback function, we can just return once our steak is ready
+      // instead of having to wait for all the broadcasts to occur.
+      await engine.submit(taggedBEEF, (steak: STEAK) => {
+        return res.status(200).json(steak)
+      })
 
-      return res.status(200).json(steak)
     } catch (error) {
       console.error(error)
       return res.status(400).json({
