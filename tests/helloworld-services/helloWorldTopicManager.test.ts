@@ -1,4 +1,4 @@
-import { HelloWorldTopicManager } from '../src/helloworld-services/HelloWorldTopicManager'
+import { HelloWorldTopicManager } from '../../src/helloworld-services/HelloWorldTopicManager'
 import { PublicKey, Signature, Transaction } from '@bsv/sdk'
 import pushdrop from 'pushdrop'
 

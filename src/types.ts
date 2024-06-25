@@ -46,6 +46,21 @@ export interface SLAPQuery {
   service?: string
 }
 
+export interface TokenQuery {
+  txid?: string
+  outputIndex?: number
+  findAll?: boolean
+}
+
+export interface TokenRecord {
+  txid: string
+  outputIndex: number
+  amount: number
+  ownerKey: string
+  assetId: string
+  createdAt: Date
+}
+
 export interface UHRPQuery {
   UHRPUrl?: string
   retentionPeriod?: number

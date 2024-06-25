@@ -1,6 +1,6 @@
 import { Db, Collection } from 'mongodb'
-import { HelloWorldStorage } from '../src/helloworld-services/HelloWorldStorage'
-import { HelloWorldRecord } from '../src/helloworld-services/types'
+import { HelloWorldStorage } from '../../src/helloworld-services/HelloWorldStorage'
+import { HelloWorldRecord } from '../../src/types'
 
 describe('HelloWorldStorage', () => {
   let mockDb: Partial<Db>

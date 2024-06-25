@@ -1,5 +1,5 @@
-import { HelloWorldLookupService } from '../src/helloworld-services/HelloWorldLookupService'
-import { HelloWorldStorage } from '../src/helloworld-services/HelloWorldStorage'
+import { HelloWorldLookupService } from '../../src/helloworld-services/HelloWorldLookupService'
+import { HelloWorldStorage } from '../../src/helloworld-services/HelloWorldStorage'
 import { LookupQuestion } from '@bsv/overlay'
 import { MongoClient, Db } from 'mongodb'
 
@@ -21,7 +21,7 @@ const DB_NAME = 'testDB'
 const mockDeleteRecord = jest.fn()
 const mockFindByMessage = jest.fn()
 
-jest.mock('../src/helloworld-services/HelloWorldStorage', () => {
+jest.mock('../../src/helloworld-services/HelloWorldStorage', () => {
   return {
     HelloWorldStorage: jest.fn().mockImplementation(() => {
       return {
@@ -46,24 +46,24 @@ describe('HelloWorldLookupService', () => {
   })
 
   describe('outputSpent', () => {
-    it('should delete the record if topic is "HelloWorld"', async () => {
-      await service.outputSpent?.('txid1', 0, 'HelloWorld')
+    it('should delete the record if topic is "tm_helloworld"', async () => {
+      await service.outputSpent?.('txid1', 0, 'tm_helloworld')
       expect(mockDeleteRecord).toHaveBeenCalledWith('txid1', 0)
     })
 
-    it('should not delete the record if topic is not "HelloWorld"', async () => {
+    it('should not delete the record if topic is not "tm_helloworld"', async () => {
       await service.outputSpent?.('txid1', 0, 'OtherTopic')
       expect(mockDeleteRecord).not.toHaveBeenCalled()
     })
   })
 
   describe('outputDeleted', () => {
-    it('should delete the record if topic is "HelloWorld"', async () => {
-      await service.outputDeleted?.('txid2', 1, 'HelloWorld')
+    it('should delete the record if topic is "tm_helloworld"', async () => {
+      await service.outputDeleted?.('txid2', 1, 'tm_helloworld')
       expect(mockDeleteRecord).toHaveBeenCalledWith('txid2', 1)
     })
 
-    it('should not delete the record if topic is not "HelloWorld"', async () => {
+    it('should not delete the record if topic is not "tm_helloworld"', async () => {
       await service.outputDeleted?.('txid2', 1, 'OtherTopic')
       expect(mockDeleteRecord).not.toHaveBeenCalled()
     })
@@ -77,7 +77,7 @@ describe('HelloWorldLookupService', () => {
 
     it('should return the result of findByMessage', async () => {
       mockFindByMessage.mockResolvedValue('result')
-      await expect(service.lookup({ query: 'message' } as LookupQuestion)).resolves.toEqual('result')
+      await expect(service.lookup({ query: 'message', service: 'ls_helloworld' } as LookupQuestion)).resolves.toEqual('result')
       expect(mockFindByMessage).toHaveBeenCalledWith('message')
     })
   })
