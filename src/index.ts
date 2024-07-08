@@ -21,6 +21,7 @@ import { SLAPTopicManager } from './peer-discovery-services/SLAP/SLAPTopicManage
 import { UHRPStorage } from './data-integrity-services/UHRPStorage.js'
 import { UHRPTopicManager } from './data-integrity-services/UHRPTopicManager.js'
 import { UHRPLookupService } from './data-integrity-services/UHRPLookupService.js'
+import { SyncConfiguration } from '@bsv/overlay/SyncConfiguration.ts'
 
 const knex = Knex(knexfile.development)
 const app = express()
@@ -41,6 +42,9 @@ const {
 
 const SLAP_TRACKERS = [`https://${NODE_ENV === 'production' ? '' : 'staging-'}overlay.babbage.systems`]
 const SHIP_TRACKERS = [`https://${NODE_ENV === 'production' ? '' : 'staging-'}overlay.babbage.systems`]
+const SYNC_CONFIGURATION: SyncConfiguration = {
+  tm_helloworld: ['http://localhost:8080']
+} // TODO: update before deploy
 
 // Initialization the overlay engine
 let engine: Engine
@@ -102,7 +106,8 @@ const initialization = async () => {
         SHIP_TRACKERS,
         SLAP_TRACKERS,
         new ARC('https://arc.taal.com', arcConfig),
-        ninjaAdvertiser
+        ninjaAdvertiser,
+        SYNC_CONFIGURATION
       )
       console.log('Engine initialized successfully')
     } catch (engineError) {
@@ -228,7 +233,6 @@ app.post('/submit', (req, res) => {
       await engine.submit(taggedBEEF, (steak: STEAK) => {
         return res.status(200).json(steak)
       })
-
     } catch (error) {
       console.error(error)
       return res.status(400).json({
@@ -287,6 +291,49 @@ app.post('/arc-ingest', (req, res) => {
   })
 })
 
+app.post('/requestSyncResponse', (req, res) => {
+  (async () => {
+    try {
+      const topic = req.headers['x-bsv-topic'] as string
+      const response = await engine.provideForeignSyncResponse(req.body, topic)
+      return res.status(200).json(response)
+    } catch (error) {
+      console.error(error)
+      return res.status(400).json({
+        status: 'error',
+        message: error instanceof Error ? error.message : 'An unknown error occurred'
+      })
+    }
+  })().catch(() => {
+    res.status(500).json({
+      status: 'error',
+      message: 'Unexpected error'
+    })
+  })
+})
+
+app.post('/requestForeignGASPNode', (req, res) => {
+  (async () => {
+    try {
+      console.log(req.body)
+      const { graphID, txid, outputIndex, metadata } = req.body
+      const response = await engine.provideForeignGASPNode(graphID, txid, outputIndex)
+      return res.status(200).json(response)
+    } catch (error) {
+      console.error(error)
+      return res.status(400).json({
+        status: 'error',
+        message: error instanceof Error ? error.message : 'An unknown error occurred'
+      })
+    }
+  })().catch(() => {
+    res.status(500).json({
+      status: 'error',
+      message: 'Unexpected error'
+    })
+  })
+})
+
 // 404, all other routes are not found.
 app.use((req, res) => {
   console.log('404', req.url)
@@ -307,6 +354,7 @@ initialization()
         // Make sure we have advertisements for all the topics / lookup services we support.
         try {
           await engine.syncAdvertisements()
+          await engine.startGASPSync()
         } catch (error) {
           console.error('Failed to sync advertisements:', error)
         }
