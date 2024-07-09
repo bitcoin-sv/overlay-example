@@ -40,11 +40,12 @@ const {
   DOJO_URL
 } = process.env
 
+// Configure with custom URLs specific to your supported topics.
 const SLAP_TRACKERS = [`https://${NODE_ENV === 'production' ? '' : 'staging-'}overlay.babbage.systems`]
 const SHIP_TRACKERS = [`https://${NODE_ENV === 'production' ? '' : 'staging-'}overlay.babbage.systems`]
 const SYNC_CONFIGURATION: SyncConfiguration = {
   tm_helloworld: ['http://localhost:8080']
-} // TODO: update before deploy
+}
 
 // Initialization the overlay engine
 let engine: Engine
