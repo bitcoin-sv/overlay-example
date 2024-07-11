@@ -64,4 +64,18 @@ export class SLAPStorage {
         outputIndex: record.outputIndex
       })))
   }
+
+  /**
+  * Returns all results tracked by the overlay
+  * @returns {Promise<UTXOReference[]>} returns matching UTXO references
+  */
+  async findAll(): Promise<UTXOReference[]> {
+    return await this.slapRecords.find({})
+      .project<UTXOReference>({ txid: 1, outputIndex: 1 })
+      .toArray()
+      .then(results => results.map(slapRecords => ({
+        txid: slapRecords.txid,
+        outputIndex: slapRecords.outputIndex
+      })))
+  }
 }

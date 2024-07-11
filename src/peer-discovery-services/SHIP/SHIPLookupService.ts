@@ -73,6 +73,10 @@ export class SHIPLookupService implements LookupService {
       throw new Error('Lookup service not supported!')
     }
 
+    if (question.query === 'findAll') {
+      return await this.storage.findAll()
+    }
+
     const { domain, topic } = question.query as SHIPQuery
 
     // Validate lookup query
