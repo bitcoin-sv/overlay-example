@@ -19,7 +19,7 @@
   "dependencies": {
     "@babbage/sdk-ts": "^0.2.38",
     "@bsv/overlay": "^0.1.5",
-    "@bsv/sdk": "^1.1.6",
+    "@bsv/sdk": "^1.1.12",
     "body-parser": "^1.20.2",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",

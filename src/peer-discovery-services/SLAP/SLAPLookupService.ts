@@ -75,6 +75,10 @@ export class SLAPLookupService implements LookupService {
       throw new Error('Lookup service not supported!')
     }
 
+    if (question.query === 'findAll') {
+      return await this.storage.findAll()
+    }
+
     const { domain, service } = question.query as SLAPQuery
 
     // Validate lookup query

@@ -64,4 +64,18 @@ export class SHIPStorage {
         outputIndex: record.outputIndex
       })))
   }
+
+  /**
+ * Returns all results tracked by the overlay
+ * @returns {Promise<UTXOReference[]>} returns matching UTXO references
+ */
+  async findAll(): Promise<UTXOReference[]> {
+    return await this.shipRecords.find({})
+      .project<UTXOReference>({ txid: 1, outputIndex: 1 })
+      .toArray()
+      .then(results => results.map(shipRecords => ({
+        txid: shipRecords.txid,
+        outputIndex: shipRecords.outputIndex
+      })))
+  }
 }
