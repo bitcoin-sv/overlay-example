@@ -273,10 +273,8 @@ app.post('/lookup', (req, res) => {
 app.post('/arc-ingest', (req, res) => {
   (async () => {
     try {
-      console.log('txid', req.body.txid)
-      console.log('merklePath', req.body.merklePath)
       const merklePath = MerklePath.fromHex(req.body.merklePath)
-      await engine.handleNewMerkleProof(req.body.txid, merklePath)
+      await engine.handleNewMerkleProof(req.body.txid, merklePath, req.body.blockHeight)
       return res.status(200).json({ status: 'success', message: 'transaction status updated' })
     } catch (error) {
       console.error(error)
