@@ -49,7 +49,7 @@ const SYNC_CONFIGURATION: SyncConfiguration = {
 
 // Initialization the overlay engine
 let engine: Engine
-let ninjaAdvertiser: Advertiser
+let ninjaAdvertiser: NinjaAdvertiser
 const initialization = async () => {
   console.log('Starting initialization...')
   try {
@@ -110,6 +110,7 @@ const initialization = async () => {
         ninjaAdvertiser,
         SYNC_CONFIGURATION
       )
+      ninjaAdvertiser.setLookupEngine(engine)
       console.log('Engine initialized successfully')
     } catch (engineError) {
       console.error('Error during Engine initialization:', engineError)
