@@ -15,7 +15,6 @@ import { SLAPLookupService } from './peer-discovery-services/SLAP/SLAPLookupServ
 import { SHIPStorage } from './peer-discovery-services/SHIP/SHIPStorage.js'
 import { SLAPStorage } from './peer-discovery-services/SLAP/SLAPStorage.js'
 import { NinjaAdvertiser } from './peer-discovery-services/NinjaAdvertiser.js'
-import { Advertiser } from '@bsv/overlay/Advertiser.ts'
 import { SHIPTopicManager } from './peer-discovery-services/SHIP/SHIPTopicManager.js'
 import { SLAPTopicManager } from './peer-discovery-services/SLAP/SLAPTopicManager.js'
 import { UHRPStorage } from './data-integrity-services/UHRPStorage.js'
