@@ -5,19 +5,16 @@ import { toBEEFfromEnvelope } from '@babbage/sdk-ts'
 import { Transaction, Script, PublicKey, PrivateKey } from '@bsv/sdk'
 import { AdvertisementData, Advertiser } from '@bsv/overlay/Advertiser.ts'
 import { getPaymentPrivateKey } from 'sendover'
-import { Advertisement, LookupAnswer, LookupQuestion } from '@bsv/overlay'
+import { Advertisement, Engine } from '@bsv/overlay'
 
 const AD_TOKEN_VALUE = 1
 
-type LookupFunction = (
-  (lookupQuestion: LookupQuestion) => Promise<LookupAnswer>
-)
 /**
  * Implements the Advertiser interface for managing SHIP and SLAP advertisements using a Ninja.
  */
 export class NinjaAdvertiser implements Advertiser {
   ninja: Ninja
-  lookup: LookupFunction | undefined
+  engine: Engine | undefined
 
   /**
    * Constructs a new NinjaAdvertiser instance.
@@ -38,8 +35,17 @@ export class NinjaAdvertiser implements Advertiser {
     })
   }
 
-  setLookupFunction(lookup: LookupFunction): void {
-    this.lookup = lookup
+  /**
+   * Sets the Engine instance to be used by this NinjaAdvertiser. This method allows for late
+   * binding of the Engine, thus avoiding circular dependencies during instantiation. The Engine
+   * provides necessary context with the relevant topic managers and lookup services,
+   * as well as the lookup function used for querying advertisements.
+   *
+   * @param engine The Engine instance to be associated with this NinjaAdvertiser. The Engine should
+   * be fully initialized before being passed to this method to ensure all functionalities are available.
+   */
+  setLookupEngine(engine: Engine): void {
+    this.engine = engine
   }
 
   /**
@@ -105,11 +111,11 @@ export class NinjaAdvertiser implements Advertiser {
    * @returns A promise that resolves to an array of SHIP advertisements.
    */
   async findAllAdvertisements(protocol: 'SHIP' | 'SLAP'): Promise<Advertisement[]> {
-    if (this.lookup === undefined) {
-      throw new Error('Advertiser must be configured with a advertisement lookup function.')
+    if (this.engine === undefined) {
+      throw new Error('Advertiser must be configured with an overlay services engine for advertisement lookup.')
     }
     const advertisements: Advertisement[] = []
-    const lookupAnswer = await this.lookup({
+    const lookupAnswer = await this.engine.lookup({
       service: protocol === 'SHIP' ? 'ls_ship' : 'ls_slap',
       query: 'findAll'
     })
