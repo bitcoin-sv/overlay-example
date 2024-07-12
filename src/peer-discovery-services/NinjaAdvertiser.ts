@@ -13,8 +13,8 @@ const AD_TOKEN_VALUE = 1
  * Implements the Advertiser interface for managing SHIP and SLAP advertisements using a Ninja.
  */
 export class NinjaAdvertiser implements Advertiser {
-  ninja: Ninja
-  engine: Engine | undefined
+  private readonly ninja: Ninja
+  private engine: Engine | undefined
 
   /**
    * Constructs a new NinjaAdvertiser instance.
