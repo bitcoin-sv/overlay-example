@@ -36,7 +36,8 @@ const {
   HOSTING_DOMAIN,
   TAAL_API_KEY,
   SERVER_PRIVATE_KEY,
-  DOJO_URL
+  DOJO_URL,
+  MIGRATE_KEY
 } = process.env
 
 // Configure with custom URLs specific to your supported topics.
@@ -326,6 +327,34 @@ app.post('/requestForeignGASPNode', (req, res) => {
       })
     }
   })().catch(() => {
+    res.status(500).json({
+      status: 'error',
+      message: 'Unexpected error'
+    })
+  })
+})
+
+app.post('/migrate', (req, res) => {
+  (async () => {
+    if (
+      typeof MIGRATE_KEY === 'string' &&
+      MIGRATE_KEY.length > 10 &&
+      req.body.migratekey === MIGRATE_KEY
+    ) {
+      const result = await knex.migrate.latest()
+      res.status(200).json({
+        status: 'success',
+        result
+      })
+    } else {
+      res.status(401).json({
+        status: 'error',
+        code: 'ERR_UNAUTHORIZED',
+        description: 'Access with this key was denied.'
+      })
+    }
+  })().catch((error) => {
+    console.error(error)
     res.status(500).json({
       status: 'error',
       message: 'Unexpected error'

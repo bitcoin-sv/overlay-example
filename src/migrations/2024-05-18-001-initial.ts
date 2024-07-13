@@ -2,15 +2,16 @@ import { Knex } from 'knex'
 import { KnexStorageMigrations } from '@bsv/overlay'
 
 export async function up(knex: Knex): Promise<void> {
-  KnexStorageMigrations.default[0].up(knex)
-  knex.schema.createTable('lookup_data', t => {
-    t.string('txid')
-    t.integer('outputIndex')
-    t.binary('script')
-  })
+  const migrations = KnexStorageMigrations.default
+  for (const migration of migrations) {
+    await migration.up(knex)
+  }
 }
 
 export async function down(knex: Knex): Promise<void> {
-  knex.schema.dropTable('lookup_data')
-  KnexStorageMigrations.default[0].down(knex)
+  const migrations = KnexStorageMigrations.default
+  // Run these in reverse order for down migrations
+  for (let i = migrations.length - 1; i >= 0; i--) {
+    await migrations[i].down(knex)
+  }
 }
