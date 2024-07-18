@@ -23,6 +23,7 @@ import { UHRPLookupService } from './data-integrity-services/UHRPLookupService.j
 import { SyncConfiguration } from '@bsv/overlay/SyncConfiguration.ts'
 import { ChaintracksChainTracker } from 'cwi-external-services'
 import { Chaintracks, ChaintracksService } from '@cwi/chaintracks-core'
+import CombinatorialChainTracker from './CombinatorialChainTracker.js'
 
 // const chaintracks = new Chaintracks('main')
 const knex = Knex(knexfile.development)
@@ -114,15 +115,18 @@ const initialization = async () => {
           ls_slap: new SLAPLookupService(slapStorage)
         },
         new KnexStorage(knex),
-        // new WhatsOnChain(
-        //   NODE_ENV === 'production' ? 'main' : 'test',
-        //   {
-        //     httpClient: new NodejsHttpClient(https)
-        //   }),
-        new ChaintracksChainTracker(
-          NODE_ENV === 'production' ? 'main' : 'test',
-          chaintracks
-        ),
+
+        new CombinatorialChainTracker([
+          new ChaintracksChainTracker(
+            NODE_ENV === 'production' ? 'main' : 'test',
+            chaintracks
+          ),
+          new WhatsOnChain(
+            NODE_ENV === 'production' ? 'main' : 'test',
+            {
+              httpClient: new NodejsHttpClient(https)
+            }),
+        ]),
         HOSTING_DOMAIN as string,
         SHIP_TRACKERS,
         SLAP_TRACKERS,
