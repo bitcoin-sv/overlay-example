@@ -21,7 +21,10 @@ import { UHRPStorage } from './data-integrity-services/UHRPStorage.js'
 import { UHRPTopicManager } from './data-integrity-services/UHRPTopicManager.js'
 import { UHRPLookupService } from './data-integrity-services/UHRPLookupService.js'
 import { SyncConfiguration } from '@bsv/overlay/SyncConfiguration.ts'
+import { ChaintracksChainTracker } from 'cwi-external-services'
+import { Chaintracks, ChaintracksService } from '@cwi/chaintracks-core'
 
+// const chaintracks = new Chaintracks('main')
 const knex = Knex(knexfile.development)
 const app = express()
 dotenv.config()
@@ -45,7 +48,8 @@ const knownDeployedOSN = `https://${NODE_ENV === 'production' ? '' : 'staging-'}
 const SLAP_TRACKERS = [knownDeployedOSN]
 const SHIP_TRACKERS = [knownDeployedOSN]
 const SYNC_CONFIGURATION: SyncConfiguration = {
-  tm_helloworld: [knownDeployedOSN]
+  tm_helloworld: [knownDeployedOSN],
+  tm_uhrp: false
 }
 
 // Initialization the overlay engine
@@ -54,6 +58,16 @@ let ninjaAdvertiser: NinjaAdvertiser
 const initialization = async () => {
   console.log('Starting initialization...')
   try {
+    const chaintracks = new Chaintracks('main')
+    const doneListening = chaintracks.startListening(); await chaintracks.listening(); console.log(new Date().toISOString(), 'listening!')
+    console.log(doneListening)
+    // const staging_chaintracks_service_port = 8084
+    // const options = ChaintracksService.createChaintracksServiceOptions()
+    // if (options.externalServicesOptions != null) {
+    //   options.externalServicesOptions.exchangeratesapiKey = 'bd539d2ff492bcb5619d5f27726a766f'
+    // }
+    // const service = new ChaintracksService(chaintracks, staging_chaintracks_service_port, options)
+
     const mongoClient = new MongoClient(DB_CONNECTION as string)
     await mongoClient.connect()
     const db = mongoClient.db(`${NODE_ENV as string}_overlay_lookup_services`)
@@ -100,11 +114,15 @@ const initialization = async () => {
           ls_slap: new SLAPLookupService(slapStorage)
         },
         new KnexStorage(knex),
-        new WhatsOnChain(
+        // new WhatsOnChain(
+        //   NODE_ENV === 'production' ? 'main' : 'test',
+        //   {
+        //     httpClient: new NodejsHttpClient(https)
+        //   }),
+        new ChaintracksChainTracker(
           NODE_ENV === 'production' ? 'main' : 'test',
-          {
-            httpClient: new NodejsHttpClient(https)
-          }),
+          chaintracks
+        ),
         HOSTING_DOMAIN as string,
         SHIP_TRACKERS,
         SLAP_TRACKERS,
@@ -383,15 +401,19 @@ initialization()
         console.log(`BSV Overlay Services Engine is listening on port ${PORT as string}`)
         // Make sure we have advertisements for all the topics / lookup services we support.
         try {
-          await engine.syncAdvertisements()
+          // await engine.syncAdvertisements()
         } catch (error) {
           console.error('Failed to sync advertisements:', error)
         }
         try {
-          await engine.startGASPSync()
+          // await engine.startGASPSync()
         } catch (error) {
           console.error('Failed to complete GASP sync:', error)
         }
+
+        // await chaintracks.startListening()
+        // await chaintracks.listening()
+        // await chaintracks.synchronize()
       })().catch((error) => {
         console.error('Unexpected error occurred:', error)
       })
