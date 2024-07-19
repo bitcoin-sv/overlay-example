@@ -405,19 +405,15 @@ initialization()
         console.log(`BSV Overlay Services Engine is listening on port ${PORT as string}`)
         // Make sure we have advertisements for all the topics / lookup services we support.
         try {
-          // await engine.syncAdvertisements()
+          await engine.syncAdvertisements()
         } catch (error) {
           console.error('Failed to sync advertisements:', error)
         }
         try {
-          // await engine.startGASPSync()
+          await engine.startGASPSync()
         } catch (error) {
           console.error('Failed to complete GASP sync:', error)
         }
-
-        // await chaintracks.startListening()
-        // await chaintracks.listening()
-        // await chaintracks.synchronize()
       })().catch((error) => {
         console.error('Unexpected error occurred:', error)
       })

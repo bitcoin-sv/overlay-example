@@ -1,11 +1,12 @@
 import { TaggedBEEF } from '@bsv/overlay/TaggedBEEF.ts'
 import pushdrop from 'pushdrop'
-import { Ninja } from 'ninja-base'
-import { toBEEFfromEnvelope } from '@babbage/sdk-ts'
+import { Ninja, NinjaTxInputsApi } from 'ninja-base'
+import { EnvelopeEvidenceApi, toBEEFfromEnvelope } from '@babbage/sdk-ts'
 import { Transaction, Script, PublicKey, PrivateKey } from '@bsv/sdk'
 import { AdvertisementData, Advertiser } from '@bsv/overlay/Advertiser.ts'
 import { getPaymentPrivateKey } from 'sendover'
 import { Advertisement, Engine } from '@bsv/overlay'
+import { toEnvelopeFromBEEF } from '@babbage/sdk-ts/out/src/utils/toBEEF.js'
 
 const AD_TOKEN_VALUE = 1
 
@@ -97,7 +98,7 @@ export class NinjaAdvertiser implements Advertiser {
       rawTx: tx.rawTx as string,
       inputs: tx.inputs,
       txid: tx.txid
-    }).beef
+    } as EnvelopeEvidenceApi).beef
 
     return {
       beef,
@@ -152,7 +153,7 @@ export class NinjaAdvertiser implements Advertiser {
     if (advertisements.length === 0) {
       throw new Error('Must provide advertisements to revoke!')
     }
-    const inputsByTxid: { [txid: string]: { rawTx: string, outputsToRedeem: Array<{ index: number, unlockingScript: string }> } } = {}
+    const inputsByTxid: { [txid: string]: NinjaTxInputsApi } = {}
     for (const advertisement of advertisements) {
       if (advertisement.beef === undefined || advertisement.outputIndex === undefined) {
         throw new Error('Advertisement to revoke must contain tagged beef!')
@@ -187,6 +188,7 @@ export class NinjaAdvertiser implements Advertiser {
       // Group outputs by their transaction ID
       if (inputsByTxid[adTxid] === undefined) {
         inputsByTxid[adTxid] = {
+          ...toEnvelopeFromBEEF(advertisementTx),
           rawTx: advertisementTx.toHex(),
           outputsToRedeem: [constructedRedeem]
         }
@@ -208,7 +210,7 @@ export class NinjaAdvertiser implements Advertiser {
       rawTx: revokeTx.rawTx as string,
       inputs: revokeTx.inputs,
       txid: revokeTx.txid
-    }).beef
+    } as EnvelopeEvidenceApi).beef
 
     return {
       beef,
