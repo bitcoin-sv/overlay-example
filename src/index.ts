@@ -60,14 +60,7 @@ const initialization = async () => {
   console.log('Starting initialization...')
   try {
     const chaintracks = new Chaintracks('main')
-    const doneListening = chaintracks.startListening(); await chaintracks.listening(); console.log(new Date().toISOString(), 'listening!')
-    console.log(doneListening)
-    // const staging_chaintracks_service_port = 8084
-    // const options = ChaintracksService.createChaintracksServiceOptions()
-    // if (options.externalServicesOptions != null) {
-    //   options.externalServicesOptions.exchangeratesapiKey = 'bd539d2ff492bcb5619d5f27726a766f'
-    // }
-    // const service = new ChaintracksService(chaintracks, staging_chaintracks_service_port, options)
+    chaintracks.startListening(); await chaintracks.listening(); console.log(new Date().toISOString(), 'listening!')
 
     const mongoClient = new MongoClient(DB_CONNECTION as string)
     await mongoClient.connect()
