@@ -22,7 +22,7 @@ import { UHRPTopicManager } from './data-integrity-services/UHRPTopicManager.js'
 import { UHRPLookupService } from './data-integrity-services/UHRPLookupService.js'
 import { SyncConfiguration } from '@bsv/overlay/SyncConfiguration.ts'
 import { ChaintracksChainTracker } from 'cwi-external-services'
-import { Chaintracks, ChaintracksService } from '@cwi/chaintracks-core'
+import { Chaintracks } from '@cwi/chaintracks-core'
 import CombinatorialChainTracker from './CombinatorialChainTracker.js'
 
 // const chaintracks = new Chaintracks('main')
@@ -118,7 +118,7 @@ const initialization = async () => {
             NODE_ENV === 'production' ? 'main' : 'test',
             {
               httpClient: new NodejsHttpClient(https)
-            }),
+            })
         ]),
         HOSTING_DOMAIN as string,
         SHIP_TRACKERS,
