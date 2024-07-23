@@ -21,11 +21,8 @@ import { UHRPStorage } from './data-integrity-services/UHRPStorage.js'
 import { UHRPTopicManager } from './data-integrity-services/UHRPTopicManager.js'
 import { UHRPLookupService } from './data-integrity-services/UHRPLookupService.js'
 import { SyncConfiguration } from '@bsv/overlay/SyncConfiguration.ts'
-import { ChaintracksChainTracker } from 'cwi-external-services'
-import { Chaintracks } from '@cwi/chaintracks-core'
 import CombinatorialChainTracker from './CombinatorialChainTracker.js'
 
-// const chaintracks = new Chaintracks('main')
 const knex = Knex(knexfile.development)
 const app = express()
 dotenv.config()
@@ -59,9 +56,6 @@ let ninjaAdvertiser: NinjaAdvertiser
 const initialization = async () => {
   console.log('Starting initialization...')
   try {
-    const chaintracks = new Chaintracks('main')
-    chaintracks.startListening(); await chaintracks.listening(); console.log(new Date().toISOString(), 'listening!')
-
     const mongoClient = new MongoClient(DB_CONNECTION as string)
     await mongoClient.connect()
     const db = mongoClient.db(`${NODE_ENV as string}_overlay_lookup_services`)
@@ -108,12 +102,7 @@ const initialization = async () => {
           ls_slap: new SLAPLookupService(slapStorage)
         },
         new KnexStorage(knex),
-
         new CombinatorialChainTracker([
-          new ChaintracksChainTracker(
-            NODE_ENV === 'production' ? 'main' : 'test',
-            chaintracks
-          ),
           new WhatsOnChain(
             NODE_ENV === 'production' ? 'main' : 'test',
             {
