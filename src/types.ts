@@ -65,3 +65,15 @@ export interface UHRPQuery {
   UHRPUrl?: string
   retentionPeriod?: number
 }
+
+export interface UtxoQuery {
+  txid?: string
+  outputIndex?: number
+  findAll?: boolean
+}
+
+export interface UtxoRecord {
+  txid: string
+  outputIndex: number
+  spent: null | string
+}
