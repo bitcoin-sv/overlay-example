@@ -57,6 +57,7 @@ MIGRATE_KEY="my-grate-key"
 DB_CONNECTION='mongodb://localhost:27017'
 TAAL_API_KEY='testnet_your_key_here'
 DOJO_URL='https://staging-dojo.babbage.systems' # Staging Dojo configured for testnet
+KNEX_DB_CONNECTION= "mysql://overlayAdmin:overlay123@localhost:3306/overlay" # Example MYSQL connection string
 ```
 Adjust DB_CONNECTION as necessary if your MongoDB instance has specific user credentials or is hosted remotely.
 
