@@ -1,0 +1,58 @@
+version: '3.9'
+services:
+  overlay-example:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: overlay-example
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: "8080"
+      NODE_ENV: "production"
+      HOSTING_DOMAIN: "http://localhost:8080"
+      DB_CONNECTION: "mongodb://mongo:27017/overlay-db"
+      MIGRATE_KEY: "my-grate-key"
+      SERVER_PRIVATE_KEY: "YOUR-PRIVATE-KEY-HERE"
+      TAAL_API_KEY: "API-KEY-HERE"
+      DOJO_URL: "https://dojo.babbage.systems"
+      KNEX_DB_CONNECTION: "mysql://overlayAdmin:overlay123@mysql:3306/overlay"
+    depends_on:
+      - mysql
+      - mongo
+
+  mysql:
+    image: mysql:8.0
+    container_name: overlay-mysql
+    environment:
+      MYSQL_DATABASE: overlay
+      MYSQL_USER: overlayAdmin
+      MYSQL_PASSWORD: overlay123
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  mongo:
+    image: mongo:5.0
+    container_name: overlay-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mysql_data:
+  mongo_data:

@@ -1,0 +1,4 @@
+./.git
+./.env
+./app.*
+./node_modules
