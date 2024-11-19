@@ -4,9 +4,10 @@ import { Ninja } from 'ninja-base'
 import fs from 'fs'
 import path from 'path'
 
+const TEST_PRIVATE_KEY = 'your-private-key-here'
 // Add a funded key here to generate your own transaction data.
 const ninja = new Ninja({
-  privateKey: 'your-private-key-here',
+  privateKey: TEST_PRIVATE_KEY,
   config: {
     dojoURL: 'https://dojo.babbage.systems'
   }
@@ -18,8 +19,7 @@ const createHelloWorldToken = async (createTask: string) => {
     fields: [
       Buffer.from(createTask)
     ],
-    protocolID: 'helloworld',
-    keyID: '1'
+    key: TEST_PRIVATE_KEY
   })
 
   const tx = await ninja.getTransactionWithOutputs({
@@ -53,7 +53,7 @@ const generateAndSaveBEEFs = async () => {
     existingBeefs = fileContent.trim().split('\n')
   }
 
-  for (let i = existingBeefs.length; i < 1000; i++) {
+  for (let i = existingBeefs.length; i <= 100; i++) {
     try {
       const beef = await createHelloWorldToken(`${createTask}_${i}`)
 
