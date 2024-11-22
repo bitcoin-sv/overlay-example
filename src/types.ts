@@ -38,7 +38,7 @@ export interface SLAPRecord {
 
 export interface SHIPQuery {
   domain?: string
-  topic?: string
+  topics?: string[]
 }
 
 export interface SLAPQuery {

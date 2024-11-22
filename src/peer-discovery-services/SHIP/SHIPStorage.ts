@@ -52,17 +52,32 @@ export class SHIPStorage {
 
   /**
    * Finds SHIP records based on a given query object.
-   * @param {Object} query The query object which may contain properties for domain or topic.
-   * @returns {Promise<UTXOReference[]>} returns matching UTXO references
+   * @param {Object} query The query object which may contain properties for domain or topics.
+   * @returns {Promise<UTXOReference[]>} Returns matching UTXO references.
    */
-  async findRecord(query: { domain?: string, topic?: string }): Promise<UTXOReference[]> {
-    return await this.shipRecords.find(query)
+  async findRecord(query: { domain?: string; topics?: string[] }): Promise<UTXOReference[]> {
+    const mongoQuery: any = {}
+
+    // Add domain to the query if provided
+    if (query.domain) {
+      mongoQuery.domain = query.domain
+    }
+
+    // Add topics to the query if provided
+    if (query.topics && Array.isArray(query.topics)) {
+      mongoQuery.topic = { $in: query.topics }
+    }
+
+    return await this.shipRecords
+      .find(mongoQuery)
       .project<UTXOReference>({ txid: 1, outputIndex: 1 })
       .toArray()
-      .then(results => results.map(record => ({
-        txid: record.txid,
-        outputIndex: record.outputIndex
-      })))
+      .then((results) =>
+        results.map((record) => ({
+          txid: record.txid,
+          outputIndex: record.outputIndex,
+        }))
+      )
   }
 
   /**
