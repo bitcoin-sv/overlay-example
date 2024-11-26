@@ -4,6 +4,15 @@ import { Script } from '@bsv/sdk'
 import pushdrop from 'pushdrop'
 import { getDocumentation } from '../utils/getDocumentation.js'
 
+export interface HelloWorldQuery {
+  message: string
+  limit: number
+  skip: number
+  startDate: Date
+  endDate: Date
+  sortOrder: 'asc' | 'desc'
+}
+
 /**
  * Implements an example HelloWorld lookup service
  *
@@ -76,19 +85,39 @@ export class HelloWorldLookupService implements LookupService {
    * @returns A promise that resolves to a lookup answer or formula
    */
   async lookup(question: LookupQuestion): Promise<LookupAnswer | LookupFormula> {
-    if (question.query === undefined || question.query === null) {
+    if (!question) {
       throw new Error('A valid query must be provided!')
     }
     if (question.service !== 'ls_helloworld') {
       throw new Error('Lookup service not supported!')
     }
 
-    if (question.query === 'findAll') {
-      return await this.storage.findAll()
+    const { message, limit = 50, skip = 0, startDate, endDate, sortOrder } = question.query as HelloWorldQuery
+
+    const parsedStartDate = startDate ? new Date(startDate) : undefined
+    const parsedEndDate = endDate ? new Date(endDate) : undefined
+
+    if (parsedStartDate && isNaN(parsedStartDate.getTime())) {
+      throw new Error('Invalid startDate provided!')
+    }
+    if (parsedEndDate && isNaN(parsedEndDate.getTime())) {
+      throw new Error('Invalid endDate provided!')
+    }
+
+    // Validate limit and skip
+    if (typeof limit !== 'number' || limit < 0) {
+      throw new Error('Limit must be a non-negative number.')
+    }
+    if (typeof skip !== 'number' || skip < 0) {
+      throw new Error('Skip must be a non-negative number.')
     }
 
     // Simple example which does a query by the message
-    return await this.storage.findByMessage(question.query as string)
+    if (message) {
+      return await this.storage.findAll(limit, skip, startDate ? new Date(startDate) : undefined, endDate ? new Date(endDate) : undefined, sortOrder)
+    }
+
+    return await this.storage.findAll(limit, skip)
   }
 
   /**
