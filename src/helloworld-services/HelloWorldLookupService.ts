@@ -114,10 +114,10 @@ export class HelloWorldLookupService implements LookupService {
 
     // Simple example which does a query by the message
     if (message) {
-      return await this.storage.findAll(limit, skip, startDate ? new Date(startDate) : undefined, endDate ? new Date(endDate) : undefined, sortOrder)
+      return await this.storage.findByMessage(message, limit, skip)
     }
 
-    return await this.storage.findAll(limit, skip)
+    return await this.storage.findAll(limit, skip, startDate ? new Date(startDate) : undefined, endDate ? new Date(endDate) : undefined, sortOrder)
   }
 
   /**
