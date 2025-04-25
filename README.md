@@ -1,5 +1,13 @@
 # Overlay Example
 
+# WARNING: THIS IS OUTDATED!
+
+Please use [Overlay Express](https://github.com/bitcoin-sv/overlay-express) with [LARS](https://github.com/bitcoin-sv/lars) and/or [CARS](https://github.com/bitcoin-sv/cars-cli) instead of this code.
+
+The repo is archived, but retained for reference.
+
+-----
+
 This repository contains an example deployment of the BSV Overlay Services Engine. It demonstrates a basic configuration that can be modified, extended, and customized to fit various use cases.
 
 ## Overview
